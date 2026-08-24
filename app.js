@@ -442,9 +442,9 @@ function renderPreview() {
   const gallery = [2, 3, 4].filter(index => state.images[index].dataUrl);
   $("#opr-preview").innerHTML = `<div id="print-content" class="print-content">
     <header class="report-header">
-      <img src="assets/logo-mps.png" alt="Logo SK Methodist PJ">
+      <img class="report-emblem report-jata" src="${JATA_URL}" alt="Jata Negara">
       <div><h2>LAPORAN RINGKAS PROGRAM / AKTIVITI (ONE PAGE REPORT)</h2><strong>SK METHODIST PJ</strong><small>“UPHOLD THE TRUTH”</small></div>
-      <img class="report-jata" src="${JATA_URL}" alt="Jata Negara">
+      <img class="report-emblem report-school-logo" src="assets/logo-mps.png" alt="Logo SK Methodist PJ">
     </header>
     <section class="report-hero">
       ${state.images[1].dataUrl ? `<img src="${state.images[1].dataUrl}" alt="Gambar utama program">` : ""}
