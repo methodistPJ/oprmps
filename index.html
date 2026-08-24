@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260824c" />
-  <link rel="stylesheet" href="audit.css?v=20260824c" />
+  <link rel="stylesheet" href="style.css?v=20260825a" />
+  <link rel="stylesheet" href="audit.css?v=20260825a" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -30,20 +30,31 @@
 
     <main>
       <section id="home-view" class="view active">
-        <div class="hero-copy">
-          <div><p class="eyebrow">SK METHODIST PJ</p><h1>Laporan yang jelas.<br><em>Tindakan yang bermakna.</em></h1><p class="lede">Pusat pengurusan OPR yang pantas untuk semua bidang sekolah.</p></div>
-          <button class="primary" id="new-opr">+ Cipta OPR baharu</button>
-        </div>
-        <section class="field-grid" aria-label="Pilih bidang">
-          <button class="field-card pentadbiran" data-field="Pentadbiran"><span class="field-index">01</span><span class="field-name">Pentadbiran</span><span>Urus tadbir sekolah <b>→</b></span></button>
-          <button class="field-card kurikulum" data-field="Kurikulum"><span class="field-index">02</span><span class="field-name">Kurikulum</span><span>Pembelajaran berfokus <b>→</b></span></button>
-          <button class="field-card hem" data-field="Hal Ehwal Murid"><span class="field-index">03</span><span class="field-name">Hal Ehwal Murid</span><span>Insan sejahtera <b>→</b></span></button>
-          <button class="field-card koko" data-field="Kokurikulum"><span class="field-index">04</span><span class="field-name">Kokurikulum</span><span>Bakat dan kepimpinan <b>→</b></span></button>
+        <section id="landing-section" class="home-section landing-section" data-home-section="landing">
+          <div class="hero-copy">
+            <div><p class="eyebrow">SK METHODIST PJ</p><h1>Laporan yang jelas.<br><em>Tindakan yang bermakna.</em></h1><p class="lede">Pusat pengurusan OPR yang pantas untuk semua bidang sekolah.</p><div class="hero-actions"><button class="primary" id="new-opr">+ Cipta OPR baharu</button><button class="secondary" id="view-stats">Lihat statistik ringkas ↓</button></div></div>
+          </div>
+          <button class="scroll-cue" type="button" data-scroll-section="fields" aria-label="Scroll ke pilihan bidang"><span>Terokai portal</span><i>↓</i></button>
         </section>
-        <section class="dashboard-grid">
-          <article class="recent-card"><div class="section-title"><div><p class="eyebrow">AKTIVITI TERKINI</p><h2>Rekod OPR</h2></div><button class="text-button" data-nav="archive">Lihat arkib →</button></div><div id="recent-list" class="recent-list"><p class="empty-state">Memuatkan rekod OPR…</p></div></article>
-          <aside class="insight-card"><p class="eyebrow">RINGKASAN</p><h2 id="month-label">Bulan ini</h2><div class="stat"><strong id="stat-month">0</strong><span>OPR dihantar</span></div><div class="stat"><strong id="stat-total">0</strong><span>Jumlah rekod</span></div><p class="insight-note">Pilih bidang untuk memulakan laporan baharu.</p></aside>
+        <section id="fields-section" class="home-section fields-section" data-home-section="fields">
+          <div class="home-section-inner"><div class="home-section-heading"><p class="eyebrow">MULAKAN LAPORAN</p><h2>Pilih bidang anda</h2><p>Empat bidang, satu aliran OPR yang seragam dan pantas.</p></div><div class="field-grid" aria-label="Pilih bidang">
+            <button class="field-card pentadbiran" data-field="Pentadbiran"><span class="field-index">01</span><span class="field-name">Pentadbiran</span><span>Urus tadbir sekolah <b>→</b></span></button>
+            <button class="field-card kurikulum" data-field="Kurikulum"><span class="field-index">02</span><span class="field-name">Kurikulum</span><span>Pembelajaran berfokus <b>→</b></span></button>
+            <button class="field-card hem" data-field="Hal Ehwal Murid"><span class="field-index">03</span><span class="field-name">Hal Ehwal Murid</span><span>Insan sejahtera <b>→</b></span></button>
+            <button class="field-card koko" data-field="Kokurikulum"><span class="field-index">04</span><span class="field-name">Kokurikulum</span><span>Bakat dan kepimpinan <b>→</b></span></button>
+          </div></div>
         </section>
+        <section id="stats-section" class="home-section stats-section" data-home-section="stats">
+          <div class="home-section-inner"><div class="home-section-heading"><p class="eyebrow">PULSE SEKOLAH</p><h2>Statistik & aktiviti terkini</h2><p>Pandangan ringkas terhadap dokumentasi OPR sekolah.</p></div><div class="dashboard-grid">
+            <article class="recent-card"><div class="section-title"><div><p class="eyebrow">AKTIVITI TERKINI</p><h2>Rekod OPR</h2></div><button class="text-button" data-nav="archive">Lihat arkib →</button></div><div id="recent-list" class="recent-list"><p class="empty-state">Memuatkan rekod OPR…</p></div></article>
+            <aside class="insight-card"><p class="eyebrow">RINGKASAN</p><h2 id="month-label">Bulan ini</h2><div class="stat"><strong id="stat-month">0</strong><span>OPR dihantar</span></div><div class="stat"><strong id="stat-total">0</strong><span>Jumlah rekod</span></div><p class="insight-note">Pilih bidang untuk memulakan laporan baharu.</p></aside>
+          </div></div>
+        </section>
+        <nav class="section-dots" aria-label="Navigasi bahagian halaman">
+          <button class="active" type="button" data-scroll-section="landing" aria-label="Ke landing"><i></i><span>Landing</span></button>
+          <button type="button" data-scroll-section="fields" aria-label="Ke pilihan bidang"><i></i><span>Bidang</span></button>
+          <button type="button" data-scroll-section="stats" aria-label="Ke statistik"><i></i><span>Statistik</span></button>
+        </nav>
       </section>
 
       <section id="type-view" class="view">
@@ -74,6 +85,6 @@
   <div id="image-editor-modal" class="image-editor-modal" hidden><div class="image-editor-card"><div class="image-editor-head"><div><strong>Kedudukan Gambar</strong><small>Tarik gambar untuk menetapkan kedudukan dalam pratonton dan PDF.</small></div><button type="button" id="close-image-editor">×</button></div><div class="image-editor-stage"><img id="cropper-image" alt="Editor gambar"></div><div class="image-editor-actions"><button type="button" id="crop-reset" class="secondary">Kembali asal</button><span></span><button type="button" id="crop-cancel" class="secondary">Batal</button><button type="button" id="crop-apply" class="primary">Gunakan gambar</button></div></div></div>
   <div id="save-progress-modal" class="save-progress-modal" hidden><div class="save-progress-card"><h2>Menyediakan Laporan OPR</h2><p>Jangan tutup halaman. Proses gambar, PDF dan Drive boleh mengambil masa sehingga 1–2 minit.</p><div class="save-steps"><div data-step="images"><i>1</i><span>Memproses gambar</span></div><div data-step="pdf"><i>2</i><span>Menjana PDF satu halaman</span></div><div data-step="drive"><i>3</i><span>Menyimpan ke Drive</span></div><div data-step="done"><i>4</i><span>Selesai</span></div></div><p id="save-progress-message" hidden></p><button id="close-save-progress" type="button" class="primary" hidden>Tutup</button></div></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-  <script src="app.js?v=20260824c"></script>
+  <script src="app.js?v=20260825a"></script>
 </body>
 </html>

@@ -111,6 +111,7 @@ const state = {
 
 let cropperInstance = null;
 let activeImageIndex = null;
+let homeScrollFrame = null;
 const $ = selector => document.querySelector(selector);
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
 
@@ -129,6 +130,8 @@ function createImageState() {
 
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.hash === "#home") history.replaceState(null, "", window.location.pathname + window.location.search);
+  document.documentElement.classList.add("home-mode");
+  document.body.classList.add("home-mode");
   $("[name=tarikhLaporan]").value = today();
   $("#month-label").textContent = new Intl.DateTimeFormat("ms-MY", { month: "long", year: "numeric" }).format(new Date());
   bindEvents();
@@ -141,7 +144,10 @@ function bindEvents() {
   $(".brand").addEventListener("click", returnToLanding);
   document.querySelectorAll("[data-nav]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.nav)));
   $(".menu-button")?.addEventListener("click", () => $(".topbar nav").classList.toggle("open"));
-  $("#new-opr").addEventListener("click", () => navigate("new"));
+  $("#new-opr").addEventListener("click", () => scrollToHomeSection("fields"));
+  $("#view-stats").addEventListener("click", () => scrollToHomeSection("stats"));
+  document.querySelectorAll("[data-scroll-section]").forEach(button => button.addEventListener("click", () => scrollToHomeSection(button.dataset.scrollSection)));
+  window.addEventListener("scroll", queueHomeSectionUpdate, { passive: true });
   document.querySelectorAll(".field-card").forEach(card => card.addEventListener("click", () => chooseField(card.dataset.field)));
   $("#form-back").addEventListener("click", handleFormBack);
   $("#opr-form").addEventListener("input", handleFormInput);
@@ -182,8 +188,40 @@ function returnToLanding(event) {
     history.replaceState(null, "", window.location.pathname);
     $(".topbar nav").classList.remove("open");
     main.classList.remove("is-transitioning");
+    scrollToHomeSection("landing", false);
     if (!state.dataLoading) loadRecords();
   }, 170);
+}
+
+function scrollToHomeSection(name, smooth = true) {
+  const section = document.querySelector(`[data-home-section="${name}"]`);
+  if (!section) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  section.scrollIntoView({ behavior: smooth && !reduceMotion ? "smooth" : "auto", block: "start" });
+  setActiveHomeDot(name);
+}
+
+function queueHomeSectionUpdate() {
+  if (!document.body.classList.contains("home-mode") || homeScrollFrame) return;
+  homeScrollFrame = requestAnimationFrame(() => {
+    homeScrollFrame = null;
+    const viewportAnchor = window.innerHeight * .48;
+    const sections = [...document.querySelectorAll("[data-home-section]")];
+    const active = sections.reduce((closest, section) => {
+      const rect = section.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height / 2 - viewportAnchor);
+      return !closest || distance < closest.distance ? { section, distance } : closest;
+    }, null);
+    if (active) setActiveHomeDot(active.section.dataset.homeSection);
+  });
+}
+
+function setActiveHomeDot(name) {
+  document.querySelectorAll(".section-dots [data-scroll-section]").forEach(button => {
+    const active = button.dataset.scrollSection === name;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-current", active ? "true" : "false");
+  });
 }
 
 function handleFormBack() {
@@ -218,8 +256,12 @@ function navigate(target) {
 function show(id) {
   document.querySelectorAll(".view").forEach(view => view.classList.remove("active"));
   $(`#${id}-view`).classList.add("active");
+  const homeMode = id === "home";
+  document.documentElement.classList.toggle("home-mode", homeMode);
+  document.body.classList.toggle("home-mode", homeMode);
   document.querySelectorAll(".nav-link").forEach(button => button.classList.toggle("active", button.dataset.nav === id || (id === "type" && button.dataset.nav === "new")));
   window.scrollTo({ top: 0, behavior: "smooth" });
+  if (homeMode) setActiveHomeDot("landing");
 }
 
 function chooseField(name) {
