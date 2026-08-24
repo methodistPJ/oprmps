@@ -1,5 +1,5 @@
 /* Set the Apps Script deployment URL after deploying apps-script/Code.gs. */
-const GAS_URL = "";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyhPN_YBVpTp_fKne4BAlxIkyBA9wtT3QjIFkAsi-ZxX6m69IkUlw3KeRgzfG-xy6-vbQ/exec";
 const JATA_URL = "https://i.ibb.co/fYY58Rh2/JATA-NEGARA-PNG.png";
 const FORM_TYPES = {
   umum: { title: "OPR Umum", description: "Laporan program lengkap dengan objektif, kekuatan dan penambahbaikan.", fields: [
