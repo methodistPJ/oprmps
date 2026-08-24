@@ -151,6 +151,7 @@ function bindEvents() {
   document.querySelectorAll("[data-scroll-section]").forEach(button => button.addEventListener("click", () => scrollToHomeSection(button.dataset.scrollSection)));
   window.addEventListener("scroll", queueHomeSectionUpdate, { passive: true });
   document.querySelectorAll(".field-card").forEach(card => card.addEventListener("click", () => chooseField(card.dataset.field)));
+  $("#type-back").addEventListener("click", handleTypeBack);
   $("#form-back").addEventListener("click", handleFormBack);
   $("#opr-form").addEventListener("input", handleFormInput);
   $("#opr-form").addEventListener("keydown", handleStructuredKey);
@@ -270,6 +271,14 @@ function handleFormBack() {
   navigate("new");
 }
 
+function handleTypeBack() {
+  if (state.field) {
+    navigate("new");
+    return;
+  }
+  navigate("home");
+}
+
 function navigate(target) {
   if (target === "new") {
     state.editId = "";
@@ -296,7 +305,7 @@ function show(id) {
   document.documentElement.classList.toggle("home-mode", homeMode);
   document.body.classList.toggle("home-mode", homeMode);
   document.querySelectorAll(".nav-link").forEach(button => button.classList.toggle("active", button.dataset.nav === id || (id === "type" && button.dataset.nav === "new")));
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "auto" });
   if (homeMode) setActiveHomeDot("landing");
 }
 
@@ -868,6 +877,7 @@ async function loadRecords() {
 function renderHome() {
   const rows = [...state.records].sort((a, b) => dateValue(b.timestamp) - dateValue(a.timestamp));
   $("#stat-total").textContent = rows.length;
+  $("#stat-officers").textContent = state.officers.length;
   const now = new Date();
   $("#stat-month").textContent = rows.filter(row => {
     const date = new Date(row.timestamp);
@@ -875,8 +885,7 @@ function renderHome() {
   }).length;
   $("#recent-list").innerHTML = state.loadError
     ? `<p class="empty-state data-error">Sambungan data belum tersedia. ${escapeHtml(state.loadError)}</p>`
-    : (rows.slice(0, 4).map(row => `<div class="recent-row"><div><strong>${escapeHtml(row.tajukProgram || "Tanpa tajuk")}</strong><small>${escapeHtml(row.bidang || "")} · ${escapeHtml(row.namaPegawai || "")}</small></div><button class="text-button" data-edit="${escapeHtml(row.rowId)}">Buka →</button></div>`).join("") || "<p class=\"empty-state\">Belum ada OPR direkodkan.</p>");
-  bindEditButtons();
+    : (rows.slice(0, 4).map(row => `<div class="recent-row"><div><strong>${escapeHtml(row.tajukProgram || "Tanpa tajuk")}</strong><small>${escapeHtml(row.bidang || "")} · ${escapeHtml(row.namaPegawai || "")}</small></div>${row.pdfUrl ? `<a class="recent-pdf" href="${escapeHtml(row.pdfUrl)}" target="_blank" rel="noopener" aria-label="Buka PDF ${escapeHtml(row.tajukProgram || "laporan")}"><span>▣</span> PDF</a>` : `<span class="recent-pdf unavailable">PDF belum tersedia</span>`}</div>`).join("") || "<p class=\"empty-state\">Belum ada OPR direkodkan.</p>");
 }
 
 function renderArchive() {
