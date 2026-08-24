@@ -1,95 +1,848 @@
-/* Set the Apps Script deployment URL after deploying apps-script/Code.gs. */
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyhPN_YBVpTp_fKne4BAlxIkyBA9wtT3QjIFkAsi-ZxX6m69IkUlw3KeRgzfG-xy6-vbQ/exec";
 const JATA_URL = "https://i.ibb.co/fYY58Rh2/JATA-NEGARA-PNG.png";
+
 const FORM_TYPES = {
-  umum: { title: "OPR Umum", description: "Laporan program lengkap dengan objektif, kekuatan dan penambahbaikan.", fields: [
-    ["tajukProgram", "Tajuk Program / Aktiviti *", "text", "Contoh: Program…", true], ["tarikhPelaksanaan", "Tarikh / Tempoh Pelaksanaan *", "text", "Contoh: 12 Ogos 2026", true], ["masa", "Masa Pelaksanaan", "text", "Contoh: 8.00 pagi – 12.00 tengah hari"], ["penglibatan", "Penglibatan *", "text", "Contoh: 80 murid Tahun 6", true], ["lokasi", "Lokasi *", "text", "Contoh: Dewan sekolah", true], ["pelibatan", "Pihak luar / Kerjasama", "text", "Jika ada"], ["objektif", "Objektif Program *", "textarea", "1. …", true, "objektif"], ["kekuatan", "Kekuatan Program *", "textarea", "• …", true, "kekuatan"], ["penambahbaikan", "Penambahbaikan & Cadangan *", "textarea", "• …", true, "penambahbaikan"] ] },
-  perancangan: { title: "OPR Perancangan", description: "Perancangan teratur sebelum program dilaksanakan.", fields: [
-    ["tajukProgram", "Tajuk Program / Aktiviti *", "text", "Contoh: Program…", true], ["tarikhPelaksanaan", "Tarikh Pelaksanaan *", "text", "Contoh: 12 Ogos 2026", true], ["penglibatan", "Penglibatan *", "text", "Contoh: Guru dan murid", true], ["lokasi", "Lokasi *", "text", "Contoh: Dewan sekolah", true], ["senaraiAjk", "Senarai AJK", "textarea", "Pengerusi: …", false, "ajk"], ["objektif", "Objektif *", "textarea", "1. …", true, "objektif"], ["sumberKewangan", "Sumber Kewangan", "text", "Contoh: PCG / PIBG"], ["outputProgram", "Output Program", "textarea", "• …", false, "output"] ] },
-  pelaksanaan: { title: "OPR Pelaksanaan", description: "Catatan pelaksanaan program dan penglibatan sebenar.", fields: [
-    ["tajukProgram", "Tajuk Program / Aktiviti *", "text", "Contoh: Program…", true], ["tarikhPelaksanaan", "Tarikh / Tempoh Pelaksanaan *", "text", "Contoh: 12–14 Ogos 2026", true], ["lokasi", "Lokasi *", "text", "Contoh: Dewan sekolah", true], ["penglibatan", "Penglibatan *", "text", "Contoh: 80 murid Tahun 6", true], ["perincianProgram", "Perincian Program *", "textarea", "• …", true, "perincian"] ] },
-  pemantauan: { title: "OPR Pemantauan & Penilaian", description: "Menilai hasil program, kekangan dan tindakan penambahbaikan.", fields: [
-    ["tajukProgram", "Tajuk Program / Aktiviti *", "text", "Contoh: Program…", true], ["tarikhPelaksanaan", "Tarikh / Tempoh Pelaksanaan *", "text", "Contoh: 12–14 Ogos 2026", true], ["penglibatan", "Penglibatan *", "text", "Contoh: 80 murid Tahun 6", true], ["lokasi", "Lokasi *", "text", "Contoh: Dewan sekolah", true], ["senaraiAjk", "Senarai AJK", "textarea", "Pengerusi: …", false, "ajk"], ["outputProgram", "Output Program", "textarea", "• …", false, "output"], ["kekanganProgram", "Kekangan Program", "textarea", "• …"], ["penambahbaikan", "Cadangan & Penambahbaikan", "textarea", "• …", false, "penambahbaikan"] ] },
-  susulan: { title: "OPR Tindakan Susulan", description: "Merekod tindakan lanjutan dan hasil yang disasarkan.", fields: [
-    ["tajukProgram", "Tajuk Program / Aktiviti *", "text", "Contoh: Program…", true], ["tarikhPelaksanaan", "Tarikh / Tempoh Pelaksanaan *", "text", "Contoh: 12–14 Ogos 2026", true], ["penglibatan", "Penglibatan *", "text", "Contoh: 80 murid Tahun 6", true], ["lokasi", "Lokasi *", "text", "Contoh: Dewan sekolah", true], ["senaraiAjk", "Senarai AJK", "textarea", "Pengerusi: …", false, "ajk"], ["penambahbaikan", "Cadangan & Penambahbaikan", "textarea", "• …", false, "penambahbaikan"], ["outputProgram", "Output Program", "textarea", "• …", false, "output"] ] }
+  umum: {
+    title: "OPR Umum",
+    description: "Laporan program lengkap dengan objektif, kekuatan dan penambahbaikan.",
+    fields: [
+      field("tajukProgram", "Tajuk Program / Aktiviti", "text", true, "Cth: PROGRAM KECEMERLANGAN MURID", "wide"),
+      field("tarikhPelaksanaan", "Tarikh Pelaksanaan", "text", true, "Cth: 11 OGOS 2026"),
+      field("masa", "Masa Pelaksanaan", "text", true, "Cth: 8.00 PAGI - 12.00 TENGAH HARI"),
+      field("penglibatan", "Penglibatan", "text", true, "Cth: 80 MURID TAHUN 6"),
+      field("lokasi", "Lokasi", "text", true, "Cth: DEWAN SEKOLAH"),
+      field("pelibatan", "Penglibatan Pihak Luar / Kerjasama", "text", false, "Cth: PIBG / AGENSI LUAR", "wide"),
+      field("objektif", "Objektif Program", "textarea", true, "1. ...\n2. ...", "wide", "objektif", "number"),
+      field("kekuatan", "Kekuatan Program", "textarea", true, "● ...", "wide", "kekuatan", "bullet"),
+      field("penambahbaikan", "Penambahbaikan & Cadangan", "textarea", true, "● ...", "wide", "penambahbaikan", "bullet")
+    ]
+  },
+  perancangan: {
+    title: "OPR Perancangan",
+    description: "Perancangan teratur sebelum program dilaksanakan.",
+    fields: [
+      field("tajukProgram", "Tajuk Program / Aktiviti", "text", true, "Cth: PROGRAM KECEMERLANGAN MURID", "wide"),
+      field("tarikhPelaksanaan", "Tarikh Pelaksanaan", "text", true, "Cth: 11 OGOS 2026"),
+      field("penglibatan", "Penglibatan", "text", true, "Cth: GURU DAN MURID"),
+      field("lokasi", "Lokasi", "text", true, "Cth: DEWAN SEKOLAH"),
+      field("sumberKewangan", "Sumber Kewangan", "text", false, "Cth: PCG / PIBG"),
+      field("senaraiAjk", "Senarai AJK", "textarea", false, "Pengerusi: ...", "wide", "ajk", "ajk"),
+      field("objektif", "Objektif", "textarea", true, "1. ...\n2. ...", "wide", "objektif", "number"),
+      field("outputProgram", "Output Program", "textarea", false, "● ...", "wide", "output", "bullet")
+    ]
+  },
+  pelaksanaan: {
+    title: "OPR Pelaksanaan",
+    description: "Catatan pelaksanaan program dan penglibatan sebenar.",
+    fields: [
+      field("tajukProgram", "Tajuk Program / Aktiviti", "text", true, "Cth: PROGRAM KECEMERLANGAN MURID", "wide"),
+      field("tarikhPelaksanaan", "Tarikh / Tempoh Pelaksanaan", "text", true, "Cth: 11 - 14 OGOS 2026"),
+      field("lokasi", "Lokasi", "text", true, "Cth: DEWAN SEKOLAH"),
+      field("penglibatan", "Penglibatan", "text", true, "Cth: 80 MURID TAHUN 6"),
+      field("perincianProgram", "Perincian Program", "textarea", true, "● ...", "wide", "perincian", "bullet")
+    ]
+  },
+  pemantauan: {
+    title: "OPR Pemantauan & Penilaian",
+    description: "Penilaian hasil, kekangan dan cadangan penambahbaikan.",
+    fields: [
+      field("tajukProgram", "Tajuk Program / Aktiviti", "text", true, "Cth: PROGRAM KECEMERLANGAN MURID", "wide"),
+      field("tarikhPelaksanaan", "Tarikh / Tempoh Pelaksanaan", "text", true, "Cth: 11 - 14 OGOS 2026"),
+      field("penglibatan", "Penglibatan", "text", true, "Cth: 80 MURID TAHUN 6"),
+      field("lokasi", "Lokasi", "text", true, "Cth: DEWAN SEKOLAH"),
+      field("senaraiAjk", "Senarai AJK", "textarea", false, "Pengerusi: ...", "wide", "ajk", "ajk"),
+      field("outputProgram", "Output Program", "textarea", false, "● ...", "wide", "output", "bullet"),
+      field("kekanganProgram", "Kekangan Program", "textarea", false, "● ...", "wide", null, "bullet"),
+      field("penambahbaikan", "Cadangan & Penambahbaikan", "textarea", false, "● ...", "wide", "penambahbaikan", "bullet")
+    ]
+  },
+  susulan: {
+    title: "OPR Tindakan Susulan",
+    description: "Tindakan lanjutan dan hasil yang disasarkan.",
+    fields: [
+      field("tajukProgram", "Tajuk Program / Aktiviti", "text", true, "Cth: PROGRAM KECEMERLANGAN MURID", "wide"),
+      field("tarikhPelaksanaan", "Tarikh / Tempoh Pelaksanaan", "text", true, "Cth: 11 - 14 OGOS 2026"),
+      field("penglibatan", "Penglibatan", "text", true, "Cth: 80 MURID TAHUN 6"),
+      field("lokasi", "Lokasi", "text", true, "Cth: DEWAN SEKOLAH"),
+      field("senaraiAjk", "Senarai AJK", "textarea", false, "Pengerusi: ...", "wide", "ajk", "ajk"),
+      field("penambahbaikan", "Cadangan & Penambahbaikan", "textarea", false, "● ...", "wide", "penambahbaikan", "bullet"),
+      field("outputProgram", "Output Program", "textarea", false, "● ...", "wide", "output", "bullet")
+    ]
+  }
 };
+
 const SUGGESTIONS = {
-  ajk: "Pengerusi: Rozani binti Muri\nNaib Pengerusi: Harsharanjit Kaur a/p Tejinder Singh\nPenyelaras: \nAJK: ",
-  objektif: "1. Meningkatkan kefahaman dan penglibatan peserta dalam program yang dilaksanakan.\n2. Memperkukuh kerjasama serta pelaksanaan aktiviti secara terancang.\n3. Memastikan hasil program dapat dimanfaatkan oleh kumpulan sasaran.",
-  kekuatan: "• Penglibatan aktif peserta sepanjang program.\n• Kerjasama baik daripada jawatankuasa pelaksana.\n• Pengisian program tersusun dan menepati objektif.",
-  penambahbaikan: "• Memperkemas hebahan awal kepada semua peserta.\n• Menambah baik pengurusan masa dan dokumentasi program.",
-  output: "• Program dilaksanakan mengikut perancangan.\n• Peserta mendapat manfaat daripada pengisian yang disampaikan.\n• Dokumentasi dan tindakan susulan disediakan.",
-  perincian: "• Pendaftaran dan taklimat peserta.\n• Pelaksanaan aktiviti utama mengikut atur cara.\n• Refleksi dan rumusan program bersama peserta."
+  ajk: ["Pengerusi: Rozani binti Muri\nNaib Pengerusi: Harsharanjit Kaur a/p Tejinder Singh\nPenyelaras: \nAJK: "],
+  objektif: [
+    "1. Meningkatkan kefahaman dan penglibatan peserta dalam program yang dilaksanakan.\n2. Memperkukuh kerjasama serta pelaksanaan aktiviti secara terancang.\n3. Memastikan hasil program dapat dimanfaatkan oleh kumpulan sasaran.",
+    "1. Meningkatkan keupayaan peserta dalam pelaksanaan program.\n2. Mengukuhkan kerjasama antara pihak berkaitan.\n3. Memastikan hasil program memberi impak kepada sasaran."
+  ],
+  kekuatan: [
+    "● Penglibatan aktif peserta sepanjang program.\n● Kerjasama baik daripada jawatankuasa pelaksana.\n● Pengisian program tersusun dan menepati objektif.",
+    "● Komitmen tinggi jawatankuasa dan peserta.\n● Pengurusan program mengikut perancangan.\n● Suasana pelaksanaan kondusif dan berkesan."
+  ],
+  penambahbaikan: [
+    "● Memperkemas hebahan awal kepada semua peserta.\n● Menambah baik pengurusan masa dan dokumentasi program.",
+    "● Menyediakan hebahan lebih awal.\n● Memperkemas instrumen maklum balas dan dokumentasi."
+  ],
+  output: [
+    "● Program dilaksanakan mengikut perancangan.\n● Peserta mendapat manfaat daripada pengisian yang disampaikan.\n● Dokumentasi dan tindakan susulan disediakan.",
+    "● Sasaran program menerima input yang diperlukan.\n● Laporan dan dokumentasi disimpan untuk tindakan susulan."
+  ],
+  perincian: [
+    "● Pendaftaran dan taklimat peserta.\n● Pelaksanaan aktiviti utama mengikut atur cara.\n● Refleksi dan rumusan program bersama peserta.",
+    "● Taklimat awal dan pembahagian peranan.\n● Aktiviti utama dilaksanakan secara berfasa.\n● Rumusan serta tindakan susulan direkodkan."
+  ]
 };
-const state = { field:"", type:"umum", photos:{}, changedPhotos:{}, removedPhotos:[], heroX:50, heroY:50, records:[], officers:[], editId:"", draftTimer:null, archiveView:"pegawai", imageSources:{} };
-let cropperInstance=null, activeImageIndex=null;
-const $ = (s) => document.querySelector(s);
-const escapeHtml = (s="") => String(s).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+
+const state = {
+  field: "",
+  type: "umum",
+  images: createImageState(),
+  removedPhotos: [],
+  records: [],
+  officers: [],
+  loadError: "",
+  editId: "",
+  archiveView: "pegawai"
+};
+
+let cropperInstance = null;
+let activeImageIndex = null;
+const $ = selector => document.querySelector(selector);
+const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
+
+function field(name, label, type, required, placeholder, width = "", suggestion = null, structured = null) {
+  return { name, label, type, required, placeholder, width, suggestion, structured };
+}
+
+function createImageState() {
+  return Object.fromEntries([1, 2, 3, 4].map(index => [index, {
+    dataUrl: "",
+    changed: false,
+    sourceUrl: "",
+    originalSource: ""
+  }]));
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-  $("[name=tarikhLaporan]").value = new Date().toISOString().slice(0,10);
-  $("#month-label").textContent = new Intl.DateTimeFormat("ms-MY",{month:"long",year:"numeric"}).format(new Date());
-  bindEvents(); loadRecords(); window.addEventListener("resize",fitPreview);
+  $("[name=tarikhLaporan]").value = today();
+  $("#month-label").textContent = new Intl.DateTimeFormat("ms-MY", { month: "long", year: "numeric" }).format(new Date());
+  bindEvents();
+  loadRecords();
+  window.addEventListener("resize", fitPreview);
+  if (window.ResizeObserver) new ResizeObserver(fitPreview).observe($("#preview-shell"));
 });
-function bindEvents(){
-  document.querySelectorAll("[data-nav]").forEach(x=>x.addEventListener("click",()=>navigate(x.dataset.nav)));
-  $(".menu-button")?.addEventListener("click",()=>$(".topbar nav").classList.toggle("open"));
-  $("#new-opr").addEventListener("click",()=>navigate("new"));
-  document.querySelectorAll(".field-card").forEach(x=>x.addEventListener("click",()=>chooseField(x.dataset.field)));
-  $("#form-back").addEventListener("click",()=>chooseField(state.field));
-  $("#opr-form").addEventListener("input",()=>{renderPreview();queueDraft();});
-  $("#opr-form").addEventListener("keydown",handleStructuredKey);
-  $("[name=namaPegawai]").addEventListener("input",filterOfficers);
-  $("[name=namaPegawai]").addEventListener("focus",filterOfficers);
-  $("[name=namaPegawai]").addEventListener("blur",()=>setTimeout(()=>$("#officer-options").hidden=true,150));
-  $("#reset-form").addEventListener("click",resetForm);
-  $("#submit-opr").addEventListener("click",submitRecord);
-  $("#download-preview").addEventListener("click",()=>createPdf(true));
-  document.querySelectorAll("input[data-image]").forEach(x=>x.addEventListener("change",readImage));
-  document.querySelectorAll("[data-remove-photo]").forEach(x=>x.addEventListener("click",()=>removePhoto(x.dataset.removePhoto)));
-  document.querySelectorAll("[data-edit-photo]").forEach(x=>x.addEventListener("click",()=>openImageEditor(x.dataset.editPhoto)));
-  $("#close-image-editor").addEventListener("click",closeImageEditor); $("#crop-cancel").addEventListener("click",closeImageEditor); $("#crop-reset").addEventListener("click",()=>cropperInstance?.reset()); $("#crop-apply").addEventListener("click",applyImageCrop); $("#close-save-progress").addEventListener("click",closeSaveProgress);
-  $("#archive-search").addEventListener("input",renderArchive); $("#archive-field").addEventListener("change",renderArchive); $("#archive-date").addEventListener("change",renderArchive);
-  document.querySelectorAll("[data-archive-view]").forEach(b=>b.addEventListener("click",()=>{state.archiveView=b.dataset.archiveView;document.querySelectorAll("[data-archive-view]").forEach(x=>x.classList.toggle("active",x===b));renderArchive()}));
-  $("#close-dialog").addEventListener("click",()=>$("#status-dialog").close());
+
+function bindEvents() {
+  document.querySelectorAll("[data-nav]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.nav)));
+  $(".menu-button")?.addEventListener("click", () => $(".topbar nav").classList.toggle("open"));
+  $("#new-opr").addEventListener("click", () => navigate("new"));
+  document.querySelectorAll(".field-card").forEach(card => card.addEventListener("click", () => chooseField(card.dataset.field)));
+  $("#form-back").addEventListener("click", () => chooseField(state.field));
+  $("#opr-form").addEventListener("input", handleFormInput);
+  $("#opr-form").addEventListener("keydown", handleStructuredKey);
+  $("[name=namaPegawai]").addEventListener("input", filterOfficers);
+  $("[name=namaPegawai]").addEventListener("focus", filterOfficers);
+  $("[name=namaPegawai]").addEventListener("blur", () => setTimeout(() => $("#officer-options").hidden = true, 160));
+  $("#reset-form").addEventListener("click", resetForm);
+  $("#submit-opr").addEventListener("click", submitRecord);
+  $("#download-preview").addEventListener("click", triggerPrint);
+  document.querySelectorAll("input[data-image]").forEach(input => input.addEventListener("change", processAndUploadImage));
+  document.querySelectorAll("[data-remove-photo]").forEach(button => button.addEventListener("click", () => removePhoto(Number(button.dataset.removePhoto))));
+  document.querySelectorAll("[data-edit-photo]").forEach(button => button.addEventListener("click", () => openImageEditor(Number(button.dataset.editPhoto))));
+  $("#close-image-editor").addEventListener("click", closeImageEditor);
+  $("#crop-cancel").addEventListener("click", closeImageEditor);
+  $("#crop-reset").addEventListener("click", () => cropperInstance?.reset());
+  $("#crop-apply").addEventListener("click", applyImageCrop);
+  $("#close-save-progress").addEventListener("click", closeSaveProgress);
+  $("#archive-search").addEventListener("input", renderArchive);
+  $("#archive-field").addEventListener("change", renderArchive);
+  $("#archive-date").addEventListener("change", renderArchive);
+  document.querySelectorAll("[data-archive-view]").forEach(button => button.addEventListener("click", () => {
+    state.archiveView = button.dataset.archiveView;
+    document.querySelectorAll("[data-archive-view]").forEach(item => item.classList.toggle("active", item === button));
+    renderArchive();
+  }));
+  $("#close-dialog").addEventListener("click", () => $("#status-dialog").close());
 }
-function navigate(target){
-  if(target==="new"){ state.editId=""; state.field=""; $("#edit-banner").hidden=true; $("#type-heading").textContent="Pilih bidang"; $("#type-lede").textContent="Pilih bidang untuk memulakan OPR baharu."; $("#type-grid").innerHTML=""; ["Pentadbiran","Kurikulum","Hal Ehwal Murid","Kokurikulum"].forEach(f=>$("#type-grid").append(typeCard(f,"Pilih bidang ini untuk meneruskan.",()=>chooseField(f)))); show("type"); return; }
-  show(target); if(target==="archive")renderArchive();
+
+function navigate(target) {
+  if (target === "new") {
+    state.editId = "";
+    state.field = "";
+    $("#edit-banner").hidden = true;
+    $("#selected-field-label").textContent = "OPR BAHARU";
+    $("#type-heading").textContent = "Pilih bidang";
+    $("#type-lede").textContent = "Pilih bidang untuk memulakan OPR baharu.";
+    $("#type-grid").innerHTML = "";
+    ["Pentadbiran", "Kurikulum", "Hal Ehwal Murid", "Kokurikulum"].forEach(name => {
+      $("#type-grid").append(typeCard(name, "Pilih bidang ini untuk meneruskan.", () => chooseField(name)));
+    });
+    show("type");
+    return;
+  }
+  show(target);
+  if (target === "archive") renderArchive();
 }
-function show(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active")); $("#"+id+"-view").classList.add("active");document.querySelectorAll(".nav-link").forEach(b=>b.classList.toggle("active",b.dataset.nav===id|| (id==="type"&&b.dataset.nav==="new")));window.scrollTo({top:0,behavior:"smooth"});}
-function chooseField(field){ state.field=field; $("#selected-field-label").textContent=field.toUpperCase(); if(field!=="Kurikulum"){selectType("umum");return;} $("#type-heading").textContent="Pilih jenis OPR"; $("#type-lede").textContent="Bidang Kurikulum mempunyai lima format laporan."; $("#type-grid").innerHTML=""; Object.entries(FORM_TYPES).forEach(([key,item])=>$("#type-grid").append(typeCard(item.title,item.description,()=>selectType(key))));show("type");}
-function typeCard(title,desc,onClick){const b=document.createElement("button");b.className="type-card";b.innerHTML=`<strong>${escapeHtml(title)}</strong><span>${escapeHtml(desc)}</span><p>Teruskan →</p>`;b.addEventListener("click",onClick);return b;}
-function selectType(type){state.type=type;state.photos={};state.changedPhotos={};state.removedPhotos=[];state.imageSources={};state.heroX=50;state.heroY=50;$("#opr-form").reset();$("[name=tarikhLaporan]").value=new Date().toISOString().slice(0,10);$("#form-field-label").textContent=state.field.toUpperCase()+" · "+FORM_TYPES[type].title.toUpperCase();$("#form-title").textContent=FORM_TYPES[type].title;renderFields();renderPreview();show("form");}
-function renderFields(){const area=$("#dynamic-fields");area.innerHTML="";FORM_TYPES[state.type].fields.forEach(([name,label,type,placeholder,required,suggestion])=>{const wrap=document.createElement("div");wrap.className=type==="textarea"?"wide":"";const lab=document.createElement("label");lab.textContent=label;const input=document.createElement(type==="textarea"?"textarea":"input");input.name=name;input.type=type==="textarea"?"text":type;input.placeholder=placeholder||"";input.required=!!required;lab.append(input);wrap.append(lab);if(suggestion){const tools=document.createElement("div");tools.className="field-tools";const b=document.createElement("button");b.type="button";b.textContent="Cadangan";b.addEventListener("click",()=>{input.value=randomSuggestion(suggestion);input.focus();renderPreview()});const c=document.createElement("button");c.type="button";c.textContent="Kosongkan";c.addEventListener("click",()=>{input.value="";input.focus();renderPreview()});tools.append(b,c);wrap.append(tools)}area.append(wrap)});}
-function formData(){const data={bidang:state.field,jenisOpr:state.type,rowId:state.editId||"",heroPosition:{x:state.heroX,y:state.heroY}};new FormData($("#opr-form")).forEach((v,k)=>data[k]=v);return data;}
-function labelFor(name){const f=FORM_TYPES[state.type].fields.find(x=>x[0]===name);return f?f[1].replace(/\s*\*.*/,""):name;}
-function renderPreview(){if(!state.field)return;const d=formData(), type=FORM_TYPES[state.type], metaNames=["tajukProgram","tarikhPelaksanaan","penglibatan","lokasi","masa"],title=escapeHtml(d.tajukProgram||"TAJUK PROGRAM / AKTIVITI");const meta=[["TARIKH",d.tarikhPelaksanaan],["PENGLIBATAN",d.penglibatan],["LOKASI",d.lokasi]];if(state.type==="umum"&&d.masa)meta.splice(1,0,["MASA",d.masa]);const sections=FORM_TYPES[state.type].fields.filter(x=>!metaNames.includes(x[0])).map(x=>`<div class="pdf-section"><b>${escapeHtml(labelFor(x[0]).toUpperCase())}</b><p>${escapeHtml(d[x[0]]||"—")}</p></div>`).join("");const hero=state.photos[1]?`<div class="pdf-hero" id="hero-preview"><img src="${state.photos[1]}" style="object-position:${state.heroX}% ${state.heroY}%"><div class="pdf-hero-title">${title}</div></div>`:`<div class="pdf-program">${title}</div>`;const gallery=[2,3,4].filter(i=>state.photos[i]).map(i=>`<img src="${state.photos[i]}" alt="Gambar program">`).join("");$("#opr-preview").innerHTML=`<div class="pdf-head"><img src="assets/logo-mps.png" alt=""><div class="pdf-title"><strong>LAPORAN RINGKAS PROGRAM / AKTIVITI</strong><span>SK METHODIST PJ</span><div class="pdf-tag">${escapeHtml(type.title.toUpperCase())} · ${escapeHtml(state.field.toUpperCase())}</div></div><img class="jata" src="${JATA_URL}" alt="Jata Negara"></div>${hero}<div class="pdf-meta">${meta.map(m=>`<div><b>${m[0]}</b><span>${escapeHtml(m[1]||"—")}</span></div>`).join("")}</div><div class="pdf-sections">${sections||""}</div>${gallery?`<div class="pdf-gallery-box"><b>📸 LAMPIRAN BERGAMBAR</b><div class="pdf-gallery">${gallery}</div></div>`:""}<div class="pdf-sign"><span><b>Disediakan oleh:</b> ${escapeHtml(d.namaPegawai||"—")} (${escapeHtml(d.jawatanPegawai||"—")})</span><span>${escapeHtml(d.tarikhLaporan||"")}</span></div>`;bindHeroDrag();requestAnimationFrame(fitPreview);}
-function fitPreview(){const panel=$(".ppd-preview-column"),preview=$("#opr-preview");if(!panel||!preview)return;const width=panel.clientWidth||794;panel.style.setProperty("--preview-scale",Math.min(1,width/794));const notice=$("#report-fit-notice");if(notice)notice.hidden=!(preview.scrollHeight>preview.clientHeight+2);}
-function bindHeroDrag(){const h=$("#hero-preview");if(!h)return;let start;h.onpointerdown=e=>{start={x:e.clientX,y:e.clientY,px:+state.heroX,py:+state.heroY};h.setPointerCapture(e.pointerId)};h.onpointermove=e=>{if(!start)return;state.heroX=Math.max(0,Math.min(100,start.px-(e.clientX-start.x)/h.clientWidth*100));state.heroY=Math.max(0,Math.min(100,start.py-(e.clientY-start.y)/h.clientHeight*100));h.querySelector("img").style.objectPosition=`${state.heroX}% ${state.heroY}%`};h.onpointerup=()=>start=null;}
-function readImage(event){const file=event.target.files[0],index=event.target.dataset.image;if(!file)return;if(!file.type.startsWith("image/")){showDialog("Fail tidak sah","Sila pilih fail gambar yang sah.");event.target.value="";return}if(file.size>15*1024*1024){showDialog("Gambar terlalu besar","Had maksimum gambar ialah 15 MB.");event.target.value="";return}state.imageSources[index]=URL.createObjectURL(file);openImageEditor(index,state.imageSources[index]);}
-function openImageEditor(index,source=" "){const actual=source.trim()||state.imageSources[index]||state.photos[index];if(!actual)return;activeImageIndex=Number(index);const modal=$("#image-editor-modal"),image=$("#cropper-image");modal.hidden=false;image.src=actual;if(cropperInstance)cropperInstance.destroy();cropperInstance=new Cropper(image,{aspectRatio:activeImageIndex===1?16/9:4/3,viewMode:1,dragMode:"move",autoCropArea:1,responsive:true,background:false,guides:true,center:true,movable:true,zoomable:false,zoomOnWheel:false,zoomOnTouch:false,cropBoxMovable:false,cropBoxResizable:false,scalable:false,rotatable:false,toggleDragModeOnDblclick:false});}
-function closeImageEditor(){$("#image-editor-modal").hidden=true;if(cropperInstance){cropperInstance.destroy();cropperInstance=null}activeImageIndex=null;}
-function applyImageCrop(){if(!cropperInstance||!activeImageIndex)return;const index=activeImageIndex,canvas=cropperInstance.getCroppedCanvas({width:index===1?1280:900,height:index===1?720:675,imageSmoothingEnabled:true,imageSmoothingQuality:"high",fillColor:"#fff"});state.photos[index]=canvas.toDataURL("image/jpeg",.8);state.changedPhotos[index]=state.photos[index];state.removedPhotos=state.removedPhotos.filter(x=>x!==index);$("#photo-status").hidden=false;$("#photo-status").textContent=`Gambar ${index} sedia digunakan${index===1?" sebagai hero":""}.`;closeImageEditor();renderPreview();}
-function removePhoto(index){if(!state.photos[index])return;delete state.photos[index];delete state.changedPhotos[index];if(!state.removedPhotos.includes(Number(index)))state.removedPhotos.push(Number(index));$("#photo-status").hidden=false;$("#photo-status").textContent=`Gambar ${index} akan dibuang apabila laporan disimpan.`;renderPreview();}
-function compressImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=reject;r.onload=e=>{const img=new Image();img.onload=()=>{const max=1600,scale=Math.min(1,max/Math.max(img.width,img.height)),canvas=document.createElement("canvas");canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL("image/jpeg",.82))};img.onerror=reject;img.src=e.target.result};r.readAsDataURL(file)})}
-function queueDraft(){clearTimeout(state.draftTimer);state.draftTimer=setTimeout(saveDraft,700)}
-function saveDraft(){if(!state.field)return;localStorage.setItem("mps-opr-draft",JSON.stringify({data:formData(),photos:state.photos,type:state.type,field:state.field,savedAt:Date.now()}));}
-async function createPdf(download=true){renderPreview();await new Promise(requestAnimationFrame);const area=$("#opr-preview");if(area.scrollHeight>area.clientHeight+2)throw new Error("Laporan terlalu panjang untuk satu halaman A4. Sila ringkaskan isi laporan.");const canvas=await html2canvas(area,{scale:2,useCORS:true,backgroundColor:"#fff"});const {jsPDF}=window.jspdf;const pdf=new jsPDF("p","mm","a4");pdf.addImage(canvas.toDataURL("image/jpeg",.92),"JPEG",0,0,210,297);const d=formData();const blob=pdf.output("blob");if(download)pdf.save(`OPR_${slug(d.tajukProgram||state.type)}.pdf`);return await blobToDataUrl(blob)}
-function showSaveProgress(){const modal=$("#save-progress-modal");modal.hidden=false;$("#save-progress-message").hidden=true;$("#close-save-progress").hidden=true;document.querySelectorAll("[data-step]").forEach(x=>x.className="");}
-function setSaveStep(step,status){const el=document.querySelector(`[data-step="${step}"]`);if(el)el.className=status;}
-function closeSaveProgress(){$("#save-progress-modal").hidden=true;}
-function progressError(step,message){setSaveStep(step,"error");const box=$("#save-progress-message");box.textContent=message;box.hidden=false;$("#close-save-progress").hidden=false;}
-async function submitRecord(){if(!$("#opr-form").reportValidity())return;const btn=$("#submit-opr");btn.disabled=true;btn.textContent="Menyediakan laporan…";showSaveProgress();let step="images";try{setSaveStep("images","active");await new Promise(requestAnimationFrame);setSaveStep("images","done");step="pdf";setSaveStep("pdf","active");const pdfBase64=await createPdf(false);setSaveStep("pdf","done");step="drive";setSaveStep("drive","active");const payload={record:formData(),photos:state.changedPhotos,removedPhotos:state.removedPhotos,pdfBase64},res=await fetch(GAS_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)}),result=await res.json();if(result.status!=="success")throw new Error(result.message);setSaveStep("drive","done");state.editId=result.rowId;state.changedPhotos={};state.removedPhotos=[];await loadRecords();$("#edit-banner").hidden=false;setSaveStep("done","done");$("#close-save-progress").hidden=false}catch(err){progressError(step,err.message||"Sila cuba lagi.")}finally{btn.disabled=false;btn.textContent="Simpan laporan & jana PDF"}}
-function blobToDataUrl(blob){return new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.readAsDataURL(blob)})}function slug(s){return String(s).replace(/[^a-z0-9]+/gi,"_").replace(/^_|_$/g,"").slice(0,50)}
-async function loadRecords(){try{const res=await fetch(GAS_URL+"?action=getInitialData"),data=await res.json();if(data.status!=="success")throw new Error(data.message);state.records=data.records||[];state.officers=data.officers||[];}catch(e){console.warn(e);state.records=[];state.officers=[]}renderHome();renderArchive()}
-function renderHome(){const rows=state.records.slice().sort((a,b)=>String(b.timestamp||"").localeCompare(String(a.timestamp||"")));$("#stat-total").textContent=rows.length;const month=new Date().toISOString().slice(0,7);$("#stat-month").textContent=rows.filter(r=>String(r.timestamp||"").startsWith(month)).length;$("#recent-list").innerHTML=rows.slice(0,4).map(r=>`<div class="recent-row"><div><strong>${escapeHtml(r.tajukProgram||"Tanpa tajuk")}</strong><small>${escapeHtml(r.bidang||"")} · ${escapeHtml(r.namaPegawai||"")}</small></div><button class="text-button" data-edit="${escapeHtml(r.rowId)}">Buka →</button></div>`).join("")||"<p class=\"empty-state\">Belum ada OPR direkodkan.</p>";bindEdit();}
-function renderArchive(){const q=$("#archive-search")?.value?.toLowerCase()||"",field=$("#archive-field")?.value||"",date=$("#archive-date")?.value||"",rows=state.records.filter(r=>(!field||r.bidang===field)&&(!date||String(r.timestamp||"").includes(date))&&(`${r.tajukProgram||""} ${r.namaPegawai||""}`).toLowerCase().includes(q)),key=state.archiveView==="pegawai"?"namaPegawai":"bidang",groups={};rows.forEach(r=>(groups[r[key]||"Tidak dinyatakan"]??=[]).push(r));$("#archive-list").innerHTML=Object.entries(groups).map(([name,list])=>`<section class="archive-group"><h2>${escapeHtml(name)} <small>${list.length} rekod</small></h2>${list.map(r=>`<div class="archive-row"><small>${new Date(r.timestamp||Date.now()).toLocaleDateString("ms-MY")}</small><div><strong>${escapeHtml(r.tajukProgram||"Tanpa tajuk")}</strong><small>${escapeHtml(r.namaPegawai||"")} · ${escapeHtml(FORM_TYPES[r.jenisOpr]?.title||"OPR Umum")}</small></div><span class="badge">${escapeHtml(r.bidang||"")}</span><div class="archive-actions">${r.pdfUrl?`<a href="${escapeHtml(r.pdfUrl)}" target="_blank" rel="noopener">PDF</a>`:""}<button data-edit="${escapeHtml(r.rowId)}">Edit</button></div></div>`).join("")}</section>`).join("")||"<p class=\"empty-state\">Tiada rekod sepadan.</p>";bindEdit();}
-function bindEdit(){document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>editRecord(b.dataset.edit)));}
-async function editRecord(id){const button=document.querySelector(`[data-edit="${id}"]`);if(button){button.disabled=true;button.textContent="Membuka…"}try{const res=await fetch(GAS_URL+"?action=getRecord&rowId="+encodeURIComponent(id)),data=await res.json();if(data.status!=="success"||!data.record)throw Error(data.message||"Rekod tidak ditemui.");const r=data.record;state.field=r.bidang;state.type=r.jenisOpr||"umum";state.editId=r.rowId;selectType(state.type);Object.entries(r).forEach(([k,v])=>{const el=$(`[name="${k}"]`);if(el)el.value=v||""});state.photos={};(data.photos||[]).forEach((image,i)=>{if(image)state.photos[i+1]=image});state.changedPhotos={};state.removedPhotos=[];state.heroX=r.heroPosition?.x===""||r.heroPosition?.x===undefined?50:Number(r.heroPosition.x);state.heroY=r.heroPosition?.y===""||r.heroPosition?.y===undefined?50:Number(r.heroPosition.y);$("#photo-status").hidden=!state.photos[1];$("#edit-banner").hidden=false;renderPreview()}catch(error){showDialog("Rekod tidak dapat dibuka",error.message||"Sila cuba lagi.")}finally{if(button){button.disabled=false;button.textContent="Edit"}}}
-function filterOfficers(){const q=$("[name=namaPegawai]").value.toLowerCase(),box=$("#officer-options"),list=state.officers.filter(p=>`${p.nama} ${p.jawatan}`.toLowerCase().includes(q)).slice(0,12);box.innerHTML=list.map((p,i)=>`<button type="button" data-officer="${i}"><strong>${escapeHtml(p.nama)}</strong><small>${escapeHtml(p.jawatan||"")}</small></button>`).join("")||"<p>Tiada pegawai sepadan.</p>";box.hidden=false;box.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>selectOfficer(list[i]));}
-function selectOfficer(p){$("[name=namaPegawai]").value=p.nama;$("[name=jawatanPegawai]").value=p.jawatan||"";$("#officer-options").hidden=true;renderPreview();}
-function resetForm(){if(!confirm("Kosongkan semua maklumat dalam borang ini?"))return;state.photos={};state.changedPhotos={};state.removedPhotos=[];state.editId="";$("#edit-banner").hidden=true;$("#opr-form").reset();$("[name=tarikhLaporan]").value=new Date().toISOString().slice(0,10);$("#photo-status").hidden=true;renderPreview();}
-function randomSuggestion(type){const base=SUGGESTIONS[type]||"";const alternatives={objektif:[base,"1. Meningkatkan keupayaan peserta dalam pelaksanaan program.\n2. Mengukuhkan kerjasama antara pihak berkaitan.\n3. Memastikan hasil program memberi impak kepada sasaran."],kekuatan:[base,"• Komitmen tinggi jawatankuasa dan peserta.\n• Pengurusan program mengikut perancangan.\n• Suasana pelaksanaan kondusif dan berkesan."],penambahbaikan:[base,"• Menyediakan hebahan lebih awal.\n• Memperkemas instrumen maklum balas dan dokumentasi."],output:[base,"• Sasaran program menerima input yang diperlukan.\n• Laporan dan dokumentasi disimpan untuk tindakan susulan."],perincian:[base,"• Taklimat awal dan pembahagian peranan.\n• Aktiviti utama dilaksanakan secara berfasa.\n• Rumusan serta tindakan susulan direkodkan."]};const items=alternatives[type]||[base];return items[Math.floor(Math.random()*items.length)]}
-function handleStructuredKey(e){const el=e.target;if(el.tagName!=="TEXTAREA")return;const kind=el.name==="objektif"?"number":(["kekuatan","penambahbaikan","outputProgram","perincianProgram","kekanganProgram"].includes(el.name)?"bullet":"");if(!kind||e.key!=="Enter"||e.shiftKey)return;e.preventDefault();const line=el.value.slice(0,el.selectionStart).split("\n").pop();const prefix=kind==="number"?`${Number((line.match(/^(\d+)\./)||[,0])[1])+1||1}. `:"• ";el.setRangeText(`\n${prefix}`,el.selectionStart,el.selectionEnd,"end");renderPreview()}
-function showDialog(title,message){$("#status-content").innerHTML=`<h2>${escapeHtml(title)}</h2><p>${escapeHtml(message)}</p>`;$("#status-dialog").showModal();}
+
+function show(id) {
+  document.querySelectorAll(".view").forEach(view => view.classList.remove("active"));
+  $(`#${id}-view`).classList.add("active");
+  document.querySelectorAll(".nav-link").forEach(button => button.classList.toggle("active", button.dataset.nav === id || (id === "type" && button.dataset.nav === "new")));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function chooseField(name) {
+  state.field = name;
+  $("#selected-field-label").textContent = name.toUpperCase();
+  if (name !== "Kurikulum") {
+    selectType("umum");
+    return;
+  }
+  $("#type-heading").textContent = "Pilih jenis OPR";
+  $("#type-lede").textContent = "Bidang Kurikulum mempunyai lima format laporan.";
+  $("#type-grid").innerHTML = "";
+  Object.entries(FORM_TYPES).forEach(([key, item]) => $("#type-grid").append(typeCard(item.title, item.description, () => selectType(key))));
+  show("type");
+}
+
+function typeCard(title, description, onClick) {
+  const button = document.createElement("button");
+  button.className = "type-card";
+  button.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(description)}</span><p>Teruskan →</p>`;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function selectType(type) {
+  state.type = type;
+  state.images = createImageState();
+  state.removedPhotos = [];
+  $("#opr-form").reset();
+  $("[name=tarikhLaporan]").value = today();
+  $("#form-field-label").textContent = `${state.field.toUpperCase()} · ${FORM_TYPES[type].title.toUpperCase()}`;
+  $("#form-title").textContent = FORM_TYPES[type].title === "OPR Umum" ? "Borang Laporan OPR" : FORM_TYPES[type].title;
+  renderFields();
+  refreshPhotoControls();
+  renderPreview();
+  show("form");
+}
+
+function renderFields() {
+  const container = $("#dynamic-fields");
+  container.innerHTML = "";
+  FORM_TYPES[state.type].fields.forEach(config => {
+    const wrapper = document.createElement("div");
+    wrapper.className = `field-wrap ${config.width}`.trim();
+    if (config.type === "textarea") {
+      wrapper.innerHTML = `<div class="textarea-heading"><label for="field-${config.name}">${escapeHtml(config.label)}${config.required ? " *" : ""}</label>${config.suggestion ? `<button type="button" class="suggestion-button" data-suggest="${config.name}">✦ Cadangan</button>` : ""}</div><div class="textarea-shell"><textarea id="field-${config.name}" name="${config.name}" rows="3" ${config.required ? "required" : ""} data-structured="${config.structured || ""}" placeholder="${escapeHtml(config.placeholder)}"></textarea><button type="button" class="clear-field" data-clear="${config.name}" aria-label="Kosongkan ${escapeHtml(config.label)}">×</button></div>`;
+    } else {
+      wrapper.innerHTML = `<label for="field-${config.name}">${escapeHtml(config.label)}${config.required ? " *" : ""}</label><input id="field-${config.name}" name="${config.name}" type="${config.type}" ${config.required ? "required" : ""} placeholder="${escapeHtml(config.placeholder)}">`;
+    }
+    container.append(wrapper);
+  });
+  container.querySelectorAll("[data-suggest]").forEach(button => button.addEventListener("click", () => applySuggestion(button.dataset.suggest)));
+  container.querySelectorAll("[data-clear]").forEach(button => button.addEventListener("click", () => clearField(button.dataset.clear)));
+}
+
+function handleFormInput(event) {
+  const input = event.target;
+  if (input.matches("textarea[data-structured]") && input.value) ensureStructuredPrefix(input);
+  renderPreview();
+}
+
+function ensureStructuredPrefix(input) {
+  const kind = input.dataset.structured;
+  if (!kind || kind === "ajk") return;
+  const matcher = kind === "number" ? /^\d+\.\s*/ : /^[●•\-*]\s*/;
+  if (!input.value.trimStart().match(matcher)) {
+    const cursor = input.selectionStart;
+    const prefix = kind === "number" ? "1. " : "● ";
+    input.value = prefix + input.value.trimStart();
+    input.setSelectionRange(cursor + prefix.length, cursor + prefix.length);
+  }
+}
+
+function handleStructuredKey(event) {
+  const input = event.target;
+  if (!input.matches("textarea[data-structured]")) return;
+  const kind = input.dataset.structured;
+  if (!kind || kind === "ajk") return;
+  if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing && !input.value.trim()) {
+    const prefix = kind === "number" ? "1. " : "● ";
+    input.value = prefix;
+    input.setSelectionRange(prefix.length, prefix.length);
+  }
+  if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+  event.preventDefault();
+  const start = input.selectionStart;
+  const currentLine = input.value.slice(0, start).split("\n").pop();
+  let nextPrefix = "● ";
+  if (kind === "number") {
+    const match = currentLine.match(/^(\s*)(\d+)\.\s*/);
+    nextPrefix = match ? `${match[1]}${Number(match[2]) + 1}. ` : "1. ";
+  } else {
+    const match = currentLine.match(/^(\s*)[●•\-*]\s*/);
+    nextPrefix = match ? `${match[1]}● ` : "● ";
+  }
+  input.setRangeText(`\n${nextPrefix}`, start, input.selectionEnd, "end");
+  renderPreview();
+}
+
+function applySuggestion(name) {
+  const config = FORM_TYPES[state.type].fields.find(item => item.name === name);
+  const values = SUGGESTIONS[config?.suggestion] || [];
+  const input = $(`[name="${name}"]`);
+  if (!input || !values.length) return;
+  input.value = values[Math.floor(Math.random() * values.length)];
+  input.focus();
+  renderPreview();
+}
+
+function clearField(name) {
+  const input = $(`[name="${name}"]`);
+  if (!input) return;
+  input.value = "";
+  input.focus();
+  renderPreview();
+}
+
+function formData() {
+  const data = { bidang: state.field, jenisOpr: state.type, rowId: state.editId || "", heroPosition: { x: 50, y: 50 } };
+  new FormData($("#opr-form")).forEach((value, key) => data[key] = value);
+  return data;
+}
+
+function previewSections(data) {
+  const metadata = new Set(["tajukProgram", "tarikhPelaksanaan", "masa", "penglibatan", "lokasi", "pelibatan"]);
+  return FORM_TYPES[state.type].fields
+    .filter(config => !metadata.has(config.name))
+    .map(config => `<section class="report-section"><h3>${escapeHtml(config.label.toUpperCase())}</h3><p>${escapeHtml(data[config.name] || "")}</p></section>`)
+    .join("");
+}
+
+function renderPreview() {
+  if (!state.field) return;
+  const data = formData();
+  const meta = [
+    ["TARIKH", data.tarikhPelaksanaan],
+    ...(state.type === "umum" ? [["MASA", data.masa]] : []),
+    ["PENGLIBATAN", data.penglibatan],
+    ["LOKASI", data.lokasi],
+    ...(data.pelibatan ? [["KERJASAMA", data.pelibatan]] : [])
+  ];
+  const gallery = [2, 3, 4].filter(index => state.images[index].dataUrl);
+  $("#opr-preview").innerHTML = `<div id="print-content" class="print-content">
+    <header class="report-header">
+      <img src="assets/logo-mps.png" alt="Logo SK Methodist PJ">
+      <div><h2>LAPORAN RINGKAS PROGRAM / AKTIVITI (ONE PAGE REPORT)</h2><strong>SK METHODIST PJ</strong><small>“UPHOLD THE TRUTH”</small></div>
+      <img class="report-jata" src="${JATA_URL}" alt="Jata Negara">
+    </header>
+    <section class="report-hero">
+      ${state.images[1].dataUrl ? `<img src="${state.images[1].dataUrl}" alt="Gambar utama program">` : ""}
+      <div><h1>${escapeHtml(data.tajukProgram || "")}</h1><span>${escapeHtml(FORM_TYPES[state.type].title.toUpperCase())} · ${escapeHtml(state.field.toUpperCase())}</span></div>
+    </section>
+    <section class="report-meta">${meta.map(([label, value]) => `<div><small>${label}</small><strong>${escapeHtml(value || "")}</strong></div>`).join("")}</section>
+    <div class="report-sections">${previewSections(data)}</div>
+    ${gallery.length ? `<section class="report-gallery"><h3>📸 LAMPIRAN BERGAMBAR</h3><div>${gallery.map(index => `<figure><img src="${state.images[index].dataUrl}" alt="Gambar ${index}"></figure>`).join("")}</div></section>` : ""}
+    <footer class="report-footer"><div><b>Disediakan oleh:</b> ${escapeHtml(data.namaPegawai || "")} (${escapeHtml(data.jawatanPegawai || "")})<br><b>Tarikh Laporan:</b> ${escapeHtml(formatDisplayDate(data.tarikhLaporan))}</div><span>Digital Hub SK Methodist PJ | OPR Dashboard</span></footer>
+  </div>`;
+  requestAnimationFrame(() => {
+    fitReportToSinglePage();
+    fitPreview();
+  });
+}
+
+function fitHeroForSinglePage() {
+  const area = $("#opr-preview");
+  const hero = area?.querySelector(".report-hero");
+  if (!area || !hero) return;
+  hero.style.height = "";
+  const overflow = area.scrollHeight - area.clientHeight;
+  if (overflow > 0) hero.style.height = `${Math.max(150, hero.offsetHeight - overflow - 8)}px`;
+}
+
+function fitReportToSinglePage() {
+  const area = $("#opr-preview");
+  const content = $("#print-content");
+  const notice = $("#report-fit-notice");
+  if (!area || !content || area.clientHeight <= 0 || !area.getClientRects().length) return { scale: 1, tooLong: false };
+  content.style.transform = "none";
+  content.style.width = "100%";
+  fitHeroForSinglePage();
+  const requiredScale = Math.min(1, (area.clientHeight - 1) / content.scrollHeight);
+  const minimumReadableScale = 0.76;
+  const scale = Math.max(minimumReadableScale, requiredScale);
+  const tooLong = requiredScale < minimumReadableScale;
+  content.style.width = `${100 / scale}%`;
+  content.style.transform = `scale(${scale})`;
+  if (notice) notice.hidden = !tooLong;
+  return { scale, tooLong };
+}
+
+function fitPreview() {
+  const shell = $("#preview-shell");
+  const area = $("#opr-preview");
+  if (!shell || !area || area.classList.contains("pdf-capture")) return;
+  area.style.transform = "none";
+  const scale = Math.min(1, shell.clientWidth / (area.offsetWidth || 794));
+  area.style.transform = `scale(${scale})`;
+  shell.style.height = `${area.offsetHeight * scale}px`;
+}
+
+function processAndUploadImage(event) {
+  const file = event.target.files?.[0];
+  const index = Number(event.target.dataset.image);
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    showDialog("Fail tidak sah", "Sila pilih fail gambar yang sah.");
+    event.target.value = "";
+    return;
+  }
+  if (file.size > 15 * 1024 * 1024) {
+    showDialog("Gambar terlalu besar", "Had maksimum gambar ialah 15 MB.");
+    event.target.value = "";
+    return;
+  }
+  const image = state.images[index];
+  if (image.sourceUrl?.startsWith("blob:")) URL.revokeObjectURL(image.sourceUrl);
+  image.sourceUrl = URL.createObjectURL(file);
+  image.originalSource = image.sourceUrl;
+  openImageEditor(index, image.sourceUrl);
+}
+
+function openImageEditor(index, sourceOverride = "") {
+  const imageState = state.images[index];
+  const source = sourceOverride || imageState.originalSource || imageState.sourceUrl || imageState.dataUrl;
+  if (!source) return;
+  activeImageIndex = index;
+  $("#image-editor-modal").hidden = false;
+  const image = $("#cropper-image");
+  image.src = source;
+  cropperInstance?.destroy();
+  cropperInstance = new Cropper(image, {
+    aspectRatio: index === 1 ? 16 / 9 : 4 / 3,
+    viewMode: 1,
+    dragMode: "move",
+    autoCropArea: 1,
+    responsive: true,
+    background: false,
+    guides: true,
+    center: true,
+    movable: true,
+    zoomable: false,
+    zoomOnWheel: false,
+    zoomOnTouch: false,
+    cropBoxMovable: false,
+    cropBoxResizable: false,
+    scalable: false,
+    rotatable: false,
+    toggleDragModeOnDblclick: false
+  });
+}
+
+function closeImageEditor() {
+  $("#image-editor-modal").hidden = true;
+  cropperInstance?.destroy();
+  cropperInstance = null;
+  activeImageIndex = null;
+}
+
+function applyImageCrop() {
+  if (!cropperInstance || !activeImageIndex) return;
+  const index = activeImageIndex;
+  const canvas = cropperInstance.getCroppedCanvas({
+    width: index === 1 ? 1280 : 900,
+    height: index === 1 ? 720 : 675,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: "high",
+    fillColor: "#ffffff"
+  });
+  const image = state.images[index];
+  image.dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+  image.changed = true;
+  state.removedPhotos = state.removedPhotos.filter(value => value !== index);
+  closeImageEditor();
+  refreshPhotoControls(`Gambar ${index} sedia digunakan${index === 1 ? " sebagai hero utama" : ""}.`);
+  renderPreview();
+}
+
+function removePhoto(index) {
+  const image = state.images[index];
+  if (!image.dataUrl) return;
+  image.dataUrl = "";
+  image.changed = false;
+  image.originalSource = "";
+  if (!state.removedPhotos.includes(index)) state.removedPhotos.push(index);
+  const input = $(`[data-image="${index}"]`);
+  if (input) input.value = "";
+  refreshPhotoControls(`Gambar ${index} akan dibuang apabila laporan disimpan.`);
+  renderPreview();
+}
+
+function refreshPhotoControls(message = "") {
+  [1, 2, 3, 4].forEach(index => {
+    const actions = $(`[data-photo-card="${index}"] .photo-actions`);
+    if (actions) actions.hidden = !state.images[index].dataUrl;
+  });
+  const status = $("#photo-status");
+  status.hidden = !message;
+  status.textContent = message;
+}
+
+function filterOfficers() {
+  const query = $("[name=namaPegawai]").value.toLowerCase();
+  const box = $("#officer-options");
+  if (state.loadError) {
+    box.innerHTML = "<p>Senarai pegawai belum dapat disambungkan. Sila muat semula selepas endpoint Apps Script aktif.</p>";
+    box.hidden = false;
+    return;
+  }
+  const matches = state.officers.filter(person => `${person.nama} ${person.jawatan}`.toLowerCase().includes(query)).slice(0, 12);
+  box.innerHTML = matches.length ? matches.map((person, index) => `<button type="button" data-officer="${index}"><strong>${escapeHtml(person.nama)}</strong><small>${escapeHtml(person.jawatan || "")}</small></button>`).join("") : "<p>Tiada pegawai sepadan.</p>";
+  box.hidden = false;
+  box.querySelectorAll("button").forEach((button, index) => button.addEventListener("mousedown", event => {
+    event.preventDefault();
+    selectOfficer(matches[index]);
+  }));
+}
+
+function selectOfficer(person) {
+  $("[name=namaPegawai]").value = person.nama;
+  $("[name=jawatanPegawai]").value = person.jawatan || "";
+  $("#officer-options").hidden = true;
+  renderPreview();
+}
+
+function resetForm() {
+  if (!confirm("Adakah anda pasti untuk mengosongkan borang?")) return;
+  state.images = createImageState();
+  state.removedPhotos = [];
+  state.editId = "";
+  $("#opr-form").reset();
+  $("[name=tarikhLaporan]").value = today();
+  $("#edit-banner").hidden = true;
+  document.querySelectorAll("input[data-image]").forEach(input => input.value = "");
+  refreshPhotoControls();
+  renderPreview();
+}
+
+async function triggerPrint() {
+  renderPreview();
+  await nextFrame();
+  const fit = fitReportToSinglePage();
+  if (fit.tooLong) {
+    showDialog("Laporan terlalu panjang", "Sila ringkaskan isi laporan supaya kekal dalam satu halaman A4.");
+    return;
+  }
+  window.print();
+}
+
+async function waitForPreviewImages() {
+  const images = [...document.querySelectorAll("#opr-preview img")].filter(image => image.src);
+  await Promise.all(images.map(image => image.complete ? Promise.resolve() : new Promise(resolve => {
+    image.addEventListener("load", resolve, { once: true });
+    image.addEventListener("error", resolve, { once: true });
+    setTimeout(resolve, 5000);
+  })));
+}
+
+function addSelectableTextLayer(pdf, area) {
+  const areaRect = area.getBoundingClientRect();
+  const xScale = 210 / areaRect.width;
+  const yScale = 297 / areaRect.height;
+  const walker = document.createTreeWalker(area, NodeFilter.SHOW_TEXT);
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(255, 255, 255);
+  let node;
+  while ((node = walker.nextNode())) {
+    const parent = node.parentElement;
+    const value = String(node.nodeValue || "").replace(/\s+/g, " ").trim().replace(/[\u{1F000}-\u{1FAFF}]/gu, "");
+    if (!parent || !value) continue;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const rect = range.getBoundingClientRect();
+    if (!rect.width || !rect.height) continue;
+    const fontSize = Math.max(2.2, parseFloat(getComputedStyle(parent).fontSize || "8") * yScale);
+    pdf.setFontSize(fontSize);
+    pdf.text(pdf.splitTextToSize(value, Math.max(4, rect.width * xScale)), Math.max(0, (rect.left - areaRect.left) * xScale), Math.max(fontSize, (rect.top - areaRect.top) * yScale + fontSize), { lineHeightFactor: 1.15 });
+  }
+}
+
+async function generatePdfBlob() {
+  const area = $("#opr-preview");
+  const fit = fitReportToSinglePage();
+  if (fit.tooLong) throw new Error("Laporan terlalu panjang untuk satu halaman A4. Sila ringkaskan isi laporan.");
+  await nextFrame();
+  await document.fonts.ready;
+  await waitForPreviewImages();
+  const oldTransform = area.style.transform;
+  area.classList.add("pdf-capture");
+  area.style.transform = "none";
+  try {
+    const canvas = await html2canvas(area, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: "#ffffff",
+      logging: false,
+      width: area.offsetWidth,
+      height: area.offsetHeight,
+      windowWidth: area.offsetWidth,
+      windowHeight: area.offsetHeight
+    });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+    addSelectableTextLayer(pdf, area);
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 210, 297, undefined, "FAST");
+    return pdf.output("blob");
+  } finally {
+    area.classList.remove("pdf-capture");
+    area.style.transform = oldTransform;
+    fitPreview();
+  }
+}
+
+async function submitRecord() {
+  if (!$("#opr-form").reportValidity()) return;
+  const button = $("#submit-opr");
+  const label = button.querySelector("span");
+  button.disabled = true;
+  label.textContent = state.editId ? "Mengemas kini laporan…" : "Menyediakan laporan…";
+  showSaveProgress();
+  let step = "images";
+  try {
+    setSaveStep("images", "active");
+    await waitForPreviewImages();
+    setSaveStep("images", "done");
+
+    step = "pdf";
+    setSaveStep("pdf", "active");
+    const pdfBlob = await generatePdfBlob();
+    const pdfBase64 = await blobToDataUrl(pdfBlob);
+    setSaveStep("pdf", "done");
+
+    step = "drive";
+    setSaveStep("drive", "active");
+    const changedPhotos = {};
+    [1, 2, 3, 4].forEach(index => {
+      if (state.images[index].changed) changedPhotos[index] = state.images[index].dataUrl;
+    });
+    const result = await requestJson(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ record: formData(), photos: changedPhotos, removedPhotos: state.removedPhotos, pdfBase64 })
+    }, 45000);
+    if (result.status !== "success") throw new Error(result.message || "Rekod gagal disimpan.");
+    setSaveStep("drive", "done");
+
+    step = "done";
+    setSaveStep("done", "active");
+    state.editId = String(result.rowId);
+    state.removedPhotos = [];
+    [1, 2, 3, 4].forEach(index => state.images[index].changed = false);
+    $("#edit-banner").hidden = false;
+    $("#edit-banner").textContent = "MODE EDIT · Rekod ini telah disimpan. Simpan semula akan mengemas kini rekod yang sama.";
+    downloadBlob(pdfBlob, pdfFileName(formData()));
+    await loadRecords();
+    setSaveStep("done", "done");
+    $("#save-progress-message").textContent = "Laporan berjaya disimpan dan PDF telah dimuat turun.";
+    $("#save-progress-message").className = "success-message";
+    $("#save-progress-message").hidden = false;
+    $("#close-save-progress").hidden = false;
+  } catch (error) {
+    console.error(error);
+    progressError(step, error.message || "Proses tidak dapat diselesaikan. Sila cuba lagi.");
+  } finally {
+    button.disabled = false;
+    label.textContent = state.editId ? "Kemaskini Laporan & Muat Turun PDF" : "Simpan Laporan & Muat Turun PDF";
+  }
+}
+
+function showSaveProgress() {
+  $("#save-progress-modal").hidden = false;
+  $("#save-progress-message").hidden = true;
+  $("#save-progress-message").className = "";
+  $("#close-save-progress").hidden = true;
+  document.querySelectorAll("[data-step]").forEach(item => item.className = "");
+}
+
+function setSaveStep(step, status) {
+  const item = document.querySelector(`[data-step="${step}"]`);
+  if (item) item.className = status;
+}
+
+function progressError(step, message) {
+  setSaveStep(step, "error");
+  $("#save-progress-message").textContent = message;
+  $("#save-progress-message").className = "error-message";
+  $("#save-progress-message").hidden = false;
+  $("#close-save-progress").hidden = false;
+}
+
+function closeSaveProgress() {
+  $("#save-progress-modal").hidden = true;
+}
+
+async function loadRecords() {
+  try {
+    const data = await requestJson(`${GAS_URL}?action=getInitialData`, { cache: "no-store" }, 12000);
+    if (data.status !== "success") throw new Error(data.message);
+    state.records = data.records || [];
+    state.officers = data.officers || [];
+    state.loadError = "";
+  } catch (error) {
+    console.warn("Data OPR tidak dapat dimuatkan", error);
+    state.records = [];
+    state.officers = [];
+    state.loadError = error.message || "Data tidak dapat dimuatkan.";
+  }
+  renderHome();
+  renderArchive();
+}
+
+function renderHome() {
+  const rows = [...state.records].sort((a, b) => dateValue(b.timestamp) - dateValue(a.timestamp));
+  $("#stat-total").textContent = rows.length;
+  const now = new Date();
+  $("#stat-month").textContent = rows.filter(row => {
+    const date = new Date(row.timestamp);
+    return !Number.isNaN(date.getTime()) && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }).length;
+  $("#recent-list").innerHTML = state.loadError
+    ? `<p class="empty-state data-error">Sambungan data belum tersedia. ${escapeHtml(state.loadError)}</p>`
+    : (rows.slice(0, 4).map(row => `<div class="recent-row"><div><strong>${escapeHtml(row.tajukProgram || "Tanpa tajuk")}</strong><small>${escapeHtml(row.bidang || "")} · ${escapeHtml(row.namaPegawai || "")}</small></div><button class="text-button" data-edit="${escapeHtml(row.rowId)}">Buka →</button></div>`).join("") || "<p class=\"empty-state\">Belum ada OPR direkodkan.</p>");
+  bindEditButtons();
+}
+
+function renderArchive() {
+  const query = $("#archive-search")?.value?.toLowerCase() || "";
+  const fieldFilter = $("#archive-field")?.value || "";
+  const monthFilter = $("#archive-date")?.value || "";
+  const rows = state.records.filter(row => {
+    const haystack = `${row.tajukProgram || ""} ${row.namaPegawai || ""} ${row.bidang || ""}`.toLowerCase();
+    return (!fieldFilter || row.bidang === fieldFilter) && (!monthFilter || toMonth(row.timestamp) === monthFilter) && haystack.includes(query);
+  });
+  const key = state.archiveView === "pegawai" ? "namaPegawai" : "bidang";
+  const groups = {};
+  rows.forEach(row => (groups[row[key] || "Tidak dinyatakan"] ??= []).push(row));
+  $("#archive-list").innerHTML = Object.entries(groups).map(([name, list]) => `<section class="archive-group"><h2>${escapeHtml(name)} <small>${list.length} rekod</small></h2>${list.map(row => `<div class="archive-row"><small>${formatDisplayDate(row.timestamp)}</small><div><strong>${escapeHtml(row.tajukProgram || "Tanpa tajuk")}</strong><small>${escapeHtml(row.namaPegawai || "")} · ${escapeHtml(FORM_TYPES[row.jenisOpr]?.title || "OPR Umum")}</small></div><span class="badge">${escapeHtml(row.bidang || "")}</span><div class="archive-actions">${row.pdfUrl ? `<a href="${escapeHtml(row.pdfUrl)}" target="_blank" rel="noopener">PDF</a>` : ""}<button data-edit="${escapeHtml(row.rowId)}">Edit</button></div></div>`).join("")}</section>`).join("") || "<p class=\"empty-state\">Tiada rekod sepadan.</p>";
+  bindEditButtons();
+}
+
+function bindEditButtons() {
+  document.querySelectorAll("[data-edit]").forEach(button => button.addEventListener("click", () => editRecord(button.dataset.edit)));
+}
+
+async function editRecord(rowId) {
+  const buttons = [...document.querySelectorAll(`[data-edit="${rowId}"]`)];
+  buttons.forEach(button => { button.disabled = true; button.textContent = "Membuka…"; });
+  try {
+    const data = await requestJson(`${GAS_URL}?action=getRecord&rowId=${encodeURIComponent(rowId)}`, { cache: "no-store" }, 20000);
+    if (data.status !== "success" || !data.record) throw new Error(data.message || "Rekod tidak ditemui.");
+    const record = data.record;
+    state.field = record.bidang;
+    state.editId = String(record.rowId);
+    selectType(FORM_TYPES[record.jenisOpr] ? record.jenisOpr : "umum");
+    state.editId = String(record.rowId);
+    Object.entries(record).forEach(([name, value]) => {
+      const input = $(`[name="${name}"]`);
+      if (input) input.value = name === "tarikhLaporan" ? formatInputDate(value) : (value || "");
+    });
+    state.images = createImageState();
+    (data.photos || []).forEach((imageData, offset) => {
+      const index = offset + 1;
+      state.images[index] = { dataUrl: imageData || "", changed: false, sourceUrl: "", originalSource: imageData || "" };
+    });
+    state.removedPhotos = [];
+    $("#edit-banner").hidden = false;
+    $("#edit-banner").textContent = "MODE EDIT · Rekod lama akan dikemas kini apabila disimpan.";
+    refreshPhotoControls("Gambar sedia ada telah dimuatkan. Reposition hanya jika perlu.");
+    renderPreview();
+    show("form");
+  } catch (error) {
+    showDialog("Rekod tidak dapat dibuka", error.message || "Sila cuba lagi.");
+  } finally {
+    buttons.forEach(button => { button.disabled = false; button.textContent = "Edit"; });
+  }
+}
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function formatInputDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value).slice(0, 10) : date.toISOString().slice(0, 10);
+}
+
+function formatDisplayDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : new Intl.DateTimeFormat("ms-MY", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+}
+
+function dateValue(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+}
+
+function toMonth(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value || "").slice(0, 7);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+function pdfFileName(data) {
+  return `OPR_${safeFilePart(data.tajukProgram)}_${safeFilePart(data.namaPegawai)}_${data.tarikhLaporan || "LAPORAN"}.pdf`;
+}
+
+function safeFilePart(value) {
+  return String(value || "OPR").normalize("NFKD").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 55) || "OPR";
+}
+
+function nextFrame() {
+  return new Promise(resolve => requestAnimationFrame(resolve));
+}
+
+async function requestJson(url, options = {}, timeout = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") throw new Error("Sambungan Apps Script mengambil masa terlalu lama.");
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function showDialog(title, message) {
+  $("#status-content").innerHTML = `<h2>${escapeHtml(title)}</h2><p>${escapeHtml(message)}</p>`;
+  $("#status-dialog").showModal();
+}
