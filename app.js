@@ -288,6 +288,7 @@ function navigate(target) {
     $("#type-heading").textContent = "Pilih bidang";
     $("#type-lede").textContent = "Pilih bidang untuk memulakan OPR baharu.";
     $("#type-grid").innerHTML = "";
+    $("#type-grid").classList.add("field-selection");
     ["Pentadbiran", "Kurikulum", "Hal Ehwal Murid", "Kokurikulum"].forEach(name => {
       $("#type-grid").append(typeCard(name, "Pilih bidang ini untuk meneruskan.", () => chooseField(name)));
     });
@@ -311,6 +312,7 @@ function show(id) {
 
 function chooseField(name) {
   state.field = name;
+  $("#type-grid").classList.remove("field-selection");
   $("#selected-field-label").textContent = name.toUpperCase();
   if (name !== "Kurikulum") {
     selectType("umum");
