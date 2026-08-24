@@ -117,6 +117,7 @@ body.home-mode main { padding-top: 0; padding-bottom: 0; }
 .ppd-preview-column { min-width: 0; position: sticky; top: 105px; }
 .ppd-preview-head { display: flex; justify-content: space-between; align-items: center; color: #334155; font-size: .72rem; text-transform: uppercase; margin: 0 0 11px; }
 .ppd-preview-head button { border: 1px solid #cbd5e1; background: #e2e8f0; padding: 7px 9px; border-radius: 7px; font-size: .68rem; font-weight: 700; color: #334155; }
+.ppd-preview-head button.is-loading { cursor: wait; opacity: .72; }
 .ppd-preview-column > #report-fit-notice { margin: 0 0 10px; padding: 9px; border: 1px solid #f4d58d; background: #fff8e5; color: #9a6700; border-radius: 8px; font-size: .72rem; font-weight: 700; }
 #preview-shell { width: 100%; overflow: hidden; }
 
@@ -245,11 +246,12 @@ body.home-mode main { padding-top: 0; padding-bottom: 0; }
 
 @media print {
   @page { size: A4 portrait; margin: 0; }
+  html, body { width: 210mm !important; height: 297mm !important; min-height: 0 !important; overflow: hidden !important; }
   body { margin: 0 !important; background: #fff !important; }
   body * { visibility: hidden !important; }
   #opr-preview, #opr-preview * { visibility: visible !important; }
   #opr-preview {
-    position: fixed !important;
+    position: absolute !important;
     inset: 0 !important;
     width: 210mm !important;
     height: 297mm !important;
@@ -260,4 +262,5 @@ body.home-mode main { padding-top: 0; padding-bottom: 0; }
     box-shadow: none !important;
     transform: none !important;
   }
+  .app-shell, main, #form-view, .ppd-form-layout, .ppd-preview-column, #preview-shell { height: 297mm !important; min-height: 0 !important; overflow: hidden !important; }
 }

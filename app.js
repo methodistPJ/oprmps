@@ -653,7 +653,24 @@ async function triggerPrint() {
     showDialog("Laporan terlalu panjang", "Sila ringkaskan isi laporan supaya kekal dalam satu halaman A4.");
     return;
   }
-  window.print();
+  const button = $("#download-preview");
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.classList.add("is-loading");
+  button.setAttribute("aria-busy", "true");
+  button.textContent = "Menjana PDF…";
+  try {
+    const pdfBlob = await generatePdfBlob();
+    downloadBlob(pdfBlob, pdfFileName(formData()));
+  } catch (error) {
+    console.error(error);
+    showDialog("PDF tidak dapat dijana", error.message || "Sila cuba semula.");
+  } finally {
+    button.disabled = false;
+    button.classList.remove("is-loading");
+    button.removeAttribute("aria-busy");
+    button.textContent = originalLabel;
+  }
 }
 
 async function waitForPreviewImages() {
