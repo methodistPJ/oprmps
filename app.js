@@ -103,6 +103,8 @@ const state = {
   records: [],
   officers: [],
   loadError: "",
+  dataLoading: true,
+  isSubmitting: false,
   editId: "",
   archiveView: "pegawai"
 };
@@ -126,6 +128,7 @@ function createImageState() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.hash === "#home") history.replaceState(null, "", window.location.pathname + window.location.search);
   $("[name=tarikhLaporan]").value = today();
   $("#month-label").textContent = new Intl.DateTimeFormat("ms-MY", { month: "long", year: "numeric" }).format(new Date());
   bindEvents();
@@ -135,11 +138,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function bindEvents() {
+  $(".brand").addEventListener("click", returnToLanding);
   document.querySelectorAll("[data-nav]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.nav)));
   $(".menu-button")?.addEventListener("click", () => $(".topbar nav").classList.toggle("open"));
   $("#new-opr").addEventListener("click", () => navigate("new"));
   document.querySelectorAll(".field-card").forEach(card => card.addEventListener("click", () => chooseField(card.dataset.field)));
-  $("#form-back").addEventListener("click", () => chooseField(state.field));
+  $("#form-back").addEventListener("click", handleFormBack);
   $("#opr-form").addEventListener("input", handleFormInput);
   $("#opr-form").addEventListener("keydown", handleStructuredKey);
   $("[name=namaPegawai]").addEventListener("input", filterOfficers);
@@ -165,6 +169,31 @@ function bindEvents() {
     renderArchive();
   }));
   $("#close-dialog").addEventListener("click", () => $("#status-dialog").close());
+}
+
+function returnToLanding(event) {
+  event?.preventDefault();
+  const main = document.querySelector("main");
+  main.classList.add("is-transitioning");
+  setTimeout(() => {
+    state.editId = "";
+    $("#edit-banner").hidden = true;
+    show("home");
+    history.replaceState(null, "", window.location.pathname);
+    $(".topbar nav").classList.remove("open");
+    main.classList.remove("is-transitioning");
+    if (!state.dataLoading) loadRecords();
+  }, 170);
+}
+
+function handleFormBack() {
+  state.editId = "";
+  $("#edit-banner").hidden = true;
+  if (state.field === "Kurikulum") {
+    chooseField("Kurikulum");
+    return;
+  }
+  navigate("new");
 }
 
 function navigate(target) {
@@ -494,9 +523,19 @@ function refreshPhotoControls(message = "") {
 function filterOfficers() {
   const query = $("[name=namaPegawai]").value.toLowerCase();
   const box = $("#officer-options");
-  if (state.loadError) {
-    box.innerHTML = "<p>Senarai pegawai belum dapat disambungkan. Sila muat semula selepas endpoint Apps Script aktif.</p>";
+  if (state.dataLoading) {
+    box.innerHTML = '<p class="picker-loading"><i></i> Memuatkan senarai pegawai…</p>';
     box.hidden = false;
+    return;
+  }
+  if (state.loadError) {
+    box.innerHTML = '<p>Senarai pegawai belum dapat disambungkan.</p><button type="button" class="picker-retry">Cuba semula</button>';
+    box.hidden = false;
+    box.querySelector(".picker-retry").addEventListener("mousedown", async event => {
+      event.preventDefault();
+      await loadRecords();
+      filterOfficers();
+    });
     return;
   }
   const matches = state.officers.filter(person => `${person.nama} ${person.jawatan}`.toLowerCase().includes(query)).slice(0, 12);
@@ -605,10 +644,12 @@ async function generatePdfBlob() {
 }
 
 async function submitRecord() {
+  if (state.isSubmitting) return;
   if (!$("#opr-form").reportValidity()) return;
   const button = $("#submit-opr");
   const label = button.querySelector("span");
   button.disabled = true;
+  state.isSubmitting = true;
   label.textContent = state.editId ? "Mengemas kini laporan…" : "Menyediakan laporan…";
   showSaveProgress();
   let step = "images";
@@ -633,7 +674,7 @@ async function submitRecord() {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ record: formData(), photos: changedPhotos, removedPhotos: state.removedPhotos, pdfBase64 })
-    }, 45000);
+    }, 120000);
     if (result.status !== "success") throw new Error(result.message || "Rekod gagal disimpan.");
     setSaveStep("drive", "done");
 
@@ -655,6 +696,7 @@ async function submitRecord() {
     console.error(error);
     progressError(step, error.message || "Proses tidak dapat diselesaikan. Sila cuba lagi.");
   } finally {
+    state.isSubmitting = false;
     button.disabled = false;
     label.textContent = state.editId ? "Kemaskini Laporan & Muat Turun PDF" : "Simpan Laporan & Muat Turun PDF";
   }
@@ -665,12 +707,19 @@ function showSaveProgress() {
   $("#save-progress-message").hidden = true;
   $("#save-progress-message").className = "";
   $("#close-save-progress").hidden = true;
-  document.querySelectorAll("[data-step]").forEach(item => item.className = "");
+  document.querySelectorAll("[data-step]").forEach((item, index) => {
+    item.className = "";
+    item.removeAttribute("aria-current");
+    item.querySelector("i").textContent = String(index + 1);
+  });
 }
 
 function setSaveStep(step, status) {
   const item = document.querySelector(`[data-step="${step}"]`);
-  if (item) item.className = status;
+  if (!item) return;
+  item.className = status;
+  if (status === "active") item.setAttribute("aria-current", "step");
+  else item.removeAttribute("aria-current");
 }
 
 function progressError(step, message) {
@@ -686,20 +735,25 @@ function closeSaveProgress() {
 }
 
 async function loadRecords() {
+  state.dataLoading = true;
+  state.loadError = "";
   try {
-    const data = await requestJson(`${GAS_URL}?action=getInitialData`, { cache: "no-store" }, 12000);
+    const data = await requestJson(`${GAS_URL}?action=getInitialData&_=${Date.now()}`, { cache: "no-store" }, 20000);
     if (data.status !== "success") throw new Error(data.message);
-    state.records = data.records || [];
-    state.officers = data.officers || [];
+    state.records = data.records || data.respon || [];
+    state.officers = data.officers || data.pegawai || [];
     state.loadError = "";
   } catch (error) {
     console.warn("Data OPR tidak dapat dimuatkan", error);
     state.records = [];
     state.officers = [];
     state.loadError = error.message || "Data tidak dapat dimuatkan.";
+  } finally {
+    state.dataLoading = false;
   }
   renderHome();
   renderArchive();
+  if (document.activeElement === $("[name=namaPegawai]")) filterOfficers();
 }
 
 function renderHome() {

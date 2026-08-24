@@ -1,4 +1,6 @@
 .menu-button { display: none; border: 0; background: transparent; font-size: 1.35rem; }
+main { opacity: 1; transition: opacity .17s ease, transform .17s ease; }
+main.is-transitioning { opacity: 0; transform: translateY(4px); }
 
 .ppd-form-layout {
   display: grid;
@@ -131,11 +133,14 @@
 .save-steps div { display: flex; align-items: center; gap: 10px; color: #66758a; font-size: .85rem; font-weight: 700; }
 .save-steps i { display: grid; place-items: center; width: 27px; height: 27px; border: 2px solid #cbd5e1; border-radius: 50%; font-style: normal; }
 .save-steps div.active { color: #174d82; }
-.save-steps div.active i { border-color: #2467b5; }
+.save-steps div.active i { color: transparent; border-color: #bfd1e6; border-top-color: #2467b5; animation: step-spin .8s linear infinite; }
 .save-steps div.done { color: #177162; }
-.save-steps div.done i { color: #fff; border-color: #177162; background: #177162; }
+.save-steps div.done i { color: transparent; border-color: #177162; background: #177162; }
+.save-steps div.done i::after { content: "✓"; color: #fff; font-size: .78rem; font-weight: 900; }
 .save-steps div.error { color: #b33939; }
-.save-steps div.error i { border-color: #b33939; }
+.save-steps div.error i { color: transparent; border-color: #b33939; }
+.save-steps div.error i::after { content: "×"; color: #b33939; font-size: 1rem; font-weight: 900; }
+@keyframes step-spin { to { transform: rotate(360deg); } }
 .error-message, .success-message { padding: 9px; border-radius: 8px; font-size: .78rem; }
 .error-message { border: 1px solid #f1c2c2; background: #fff0f0; color: #a43737; }
 .success-message { border: 1px solid #bce3da; background: #edf8f5; color: #146657; }
@@ -144,6 +149,14 @@
 .archive-actions a { border: 1px solid #dfe4ec; border-radius: 7px; background: #f4f8fc; padding: 7px; color: #255b91; font-size: .75rem; font-weight: 700; text-align: center; text-decoration: none; }
 .archive-row button:disabled { opacity: .6; cursor: wait; }
 .data-error { border: 1px solid #f4d58d; border-radius: 9px; background: #fff8e5; color: #8a5a00; }
+.picker-options .picker-loading { display: flex; align-items: center; gap: 8px; }
+.picker-loading i { width: 14px; height: 14px; border: 2px solid #cbd5e1; border-top-color: #2467b5; border-radius: 50%; animation: step-spin .8s linear infinite; }
+.picker-options .picker-retry { margin: 0 10px 10px; width: calc(100% - 20px); border: 1px solid #cbd5e1; border-radius: 7px; background: #f8fafc; color: #334155; font-size: .72rem; font-weight: 800; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  main { transition: none; }
+  .save-steps div.active i, .picker-loading i { animation-duration: 1.6s; }
+}
 
 @media (max-width: 1000px) {
   .ppd-form-layout { grid-template-columns: 1fr; }
