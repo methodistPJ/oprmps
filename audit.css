@@ -2,6 +2,32 @@
 main { opacity: 1; transition: opacity .17s ease, transform .17s ease; }
 main.is-transitioning { opacity: 0; transform: translateY(4px); }
 
+body.booting { overflow: hidden; }
+.app-loader { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; padding: clamp(28px, 8vw, 110px); background: #f6f5f1c7; backdrop-filter: blur(16px) saturate(.8); opacity: 1; transition: opacity .6s ease, visibility .6s ease; }
+.app-loader[hidden] { display: none; }
+.app-loader.leaving { visibility: hidden; opacity: 0; pointer-events: none; }
+.app-loader-inner { width: min(470px, 100%); }
+.app-loader-kicker { margin: 0 0 13px; color: #60708b; font-size: .64rem; font-weight: 800; letter-spacing: .18em; }
+.app-loader h1 { margin: 0; font-family: "Playfair Display", serif; font-size: clamp(2.2rem, 5vw, 4.1rem); line-height: 1; letter-spacing: -.04em; }
+.app-loader-line { position: relative; width: min(310px, 80vw); height: 2px; margin: 27px 0 17px; overflow: hidden; background: #cad2dd; }
+.app-loader-line i { position: absolute; inset: 0 auto 0 0; width: 42%; background: #0b1427; animation: loader-travel 1.25s cubic-bezier(.65, 0, .35, 1) infinite; }
+.app-loader.connected .app-loader-line i { width: 100%; background: #11867b; animation: none; transition: width .3s ease; }
+.app-loader.connection-error .app-loader-line i { width: 100%; background: #b64a4a; animation: none; }
+@keyframes loader-travel { 0% { transform: translateX(-110%); } 100% { transform: translateX(350%); } }
+#app-loader-status { margin: 0; color: #334155; font-size: .82rem; font-weight: 750; }
+#app-loader-detail { display: block; margin-top: 6px; color: #8491a4; font-size: .68rem; }
+#retry-bootstrap { margin-top: 18px; border: 1px solid #bcc7d5; border-radius: 8px; background: #ffffffb8; padding: 9px 13px; color: #26364d; font-size: .72rem; font-weight: 800; }
+body.booting .landing-section .eyebrow, body.booting .landing-section h1, body.booting .landing-section .lede, body.booting .hero-actions, body.booting .scroll-cue { opacity: 0; transform: translateY(14px); }
+body.booting .section-dots { opacity: 0; }
+body.app-ready .landing-section .eyebrow { animation: landing-reveal .65s .06s ease both; }
+body.app-ready .landing-section h1 { animation: landing-reveal .75s .14s cubic-bezier(.2,.7,.2,1) both; }
+body.app-ready .landing-section .lede { animation: landing-reveal .65s .26s ease both; }
+body.app-ready .hero-actions { animation: landing-reveal .65s .36s ease both; }
+body.app-ready .scroll-cue { animation: landing-reveal .6s .48s ease both; }
+body.app-ready .section-dots { animation: dots-reveal .6s .48s ease both; }
+@keyframes landing-reveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dots-reveal { from { opacity: 0; } to { opacity: 1; } }
+
 html.home-mode { scroll-behavior: smooth; scroll-snap-type: y proximity; }
 body.home-mode main { padding-top: 0; padding-bottom: 0; }
 .home-section { min-height: calc(100svh - 82px); scroll-margin-top: 82px; scroll-snap-align: start; scroll-snap-stop: normal; }
@@ -184,6 +210,8 @@ body.home-mode main { padding-top: 0; padding-bottom: 0; }
   main { transition: none; }
   .save-steps div.active i, .picker-loading i { animation-duration: 1.6s; }
   .scroll-cue i { animation: none; }
+  .app-loader-line i { animation-duration: 2.2s; }
+  body.app-ready .landing-section .eyebrow, body.app-ready .landing-section h1, body.app-ready .landing-section .lede, body.app-ready .hero-actions, body.app-ready .scroll-cue, body.app-ready .section-dots { animation-duration: .01ms; animation-delay: 0s; }
 }
 
 @media (max-width: 1000px) {

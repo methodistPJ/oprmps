@@ -102,6 +102,7 @@ const state = {
   removedPhotos: [],
   records: [],
   officers: [],
+  connection: null,
   loadError: "",
   dataLoading: true,
   isSubmitting: false,
@@ -135,13 +136,14 @@ document.addEventListener("DOMContentLoaded", () => {
   $("[name=tarikhLaporan]").value = today();
   $("#month-label").textContent = new Intl.DateTimeFormat("ms-MY", { month: "long", year: "numeric" }).format(new Date());
   bindEvents();
-  loadRecords();
+  bootstrapApp();
   window.addEventListener("resize", fitPreview);
   if (window.ResizeObserver) new ResizeObserver(fitPreview).observe($("#preview-shell"));
 });
 
 function bindEvents() {
   $(".brand").addEventListener("click", returnToLanding);
+  $("#retry-bootstrap").addEventListener("click", bootstrapApp);
   document.querySelectorAll("[data-nav]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.nav)));
   $(".menu-button")?.addEventListener("click", () => $(".topbar nav").classList.toggle("open"));
   $("#new-opr").addEventListener("click", () => scrollToHomeSection("fields"));
@@ -175,6 +177,40 @@ function bindEvents() {
     renderArchive();
   }));
   $("#close-dialog").addEventListener("click", () => $("#status-dialog").close());
+}
+
+async function bootstrapApp() {
+  const loader = $("#app-loader");
+  const status = $("#app-loader-status");
+  const detail = $("#app-loader-detail");
+  const retry = $("#retry-bootstrap");
+  loader.hidden = false;
+  loader.className = "app-loader";
+  loader.setAttribute("aria-busy", "true");
+  status.textContent = "Menyambungkan RESPONDOPR & PEGAWAI…";
+  detail.textContent = "OPR Command Centre";
+  retry.hidden = true;
+
+  const connected = await loadRecords();
+  if (!connected) {
+    loader.classList.add("connection-error");
+    loader.setAttribute("aria-busy", "false");
+    status.textContent = "Sambungan data belum berjaya.";
+    detail.textContent = state.loadError || "Semak deployment Google Apps Script.";
+    retry.hidden = false;
+    return;
+  }
+
+  const connection = state.connection || {};
+  loader.classList.add("connected");
+  loader.setAttribute("aria-busy", "false");
+  status.textContent = "RESPONDOPR & PEGAWAI bersambung.";
+  detail.textContent = `${connection.recordCount ?? state.records.length} rekod · ${connection.officerCount ?? state.officers.length} pegawai`;
+  await delay(420);
+  document.body.classList.remove("booting");
+  document.body.classList.add("app-ready");
+  loader.classList.add("leaving");
+  setTimeout(() => { loader.hidden = true; }, 650);
 }
 
 function returnToLanding(event) {
@@ -782,13 +818,26 @@ async function loadRecords() {
   try {
     const data = await requestJson(`${GAS_URL}?action=getInitialData&_=${Date.now()}`, { cache: "no-store" }, 20000);
     if (data.status !== "success") throw new Error(data.message);
-    state.records = data.records || data.respon || [];
-    state.officers = data.officers || data.pegawai || [];
+    const recordData = data.records || data.respon;
+    const officerData = data.officers || data.pegawai;
+    if (!Array.isArray(recordData) || !Array.isArray(officerData)) throw new Error("Respons GAS tidak mengandungi data RESPONDOPR dan PEGAWAI.");
+    state.records = recordData;
+    state.officers = officerData;
+    state.connection = data.connection || {
+      responseSheet: "RESPONDOPR",
+      officerSheet: "PEGAWAI",
+      respondOprConnected: true,
+      pegawaiConnected: true,
+      recordCount: recordData.length,
+      officerCount: officerData.length
+    };
+    if (state.connection.respondOprConnected === false || state.connection.pegawaiConnected === false) throw new Error("Tab RESPONDOPR atau PEGAWAI belum bersambung.");
     state.loadError = "";
   } catch (error) {
     console.warn("Data OPR tidak dapat dimuatkan", error);
     state.records = [];
     state.officers = [];
+    state.connection = null;
     state.loadError = error.message || "Data tidak dapat dimuatkan.";
   } finally {
     state.dataLoading = false;
@@ -796,6 +845,7 @@ async function loadRecords() {
   renderHome();
   renderArchive();
   if (document.activeElement === $("[name=namaPegawai]")) filterOfficers();
+  return !state.loadError;
 }
 
 function renderHome() {
@@ -921,6 +971,10 @@ function safeFilePart(value) {
 
 function nextFrame() {
   return new Promise(resolve => requestAnimationFrame(resolve));
+}
+
+function delay(milliseconds) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 async function requestJson(url, options = {}, timeout = 20000) {
