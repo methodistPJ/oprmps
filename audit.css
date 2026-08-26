@@ -2,7 +2,9 @@
 main { opacity: 1; transition: opacity .17s ease, transform .17s ease; }
 main.is-transitioning { opacity: 0; transform: translateY(4px); }
 main > .view.active { animation: portal-view-reveal .42s cubic-bezier(.2, .72, .2, 1) both; }
-@keyframes portal-view-reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+main > #home-view.view.active { animation-name: portal-home-reveal; }
+@keyframes portal-view-reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes portal-home-reveal { from { opacity: 0; } to { opacity: 1; } }
 body:not(.home-mode) main { margin: 0 auto; padding-top: clamp(34px, 4.5vw, 58px); }
 .type-grid.field-selection { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 

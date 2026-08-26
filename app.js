@@ -188,7 +188,7 @@ async function bootstrapApp() {
   loader.hidden = false;
   loader.className = "app-loader";
   loader.setAttribute("aria-busy", "true");
-  status.textContent = "Menyambungkan RESPONDOPR & PEGAWAI…";
+  status.textContent = "Menyelaraskan data dan akses portal…";
   detail.textContent = "OPR Command Centre";
   retry.hidden = true;
 
@@ -205,7 +205,7 @@ async function bootstrapApp() {
   const connection = state.connection || {};
   loader.classList.add("connected");
   loader.setAttribute("aria-busy", "false");
-  status.textContent = "RESPONDOPR & PEGAWAI bersambung.";
+  status.textContent = "Portal sedia digunakan.";
   detail.textContent = `${connection.recordCount ?? state.records.length} rekod · ${connection.officerCount ?? state.officers.length} pegawai`;
   await delay(420);
   document.body.classList.remove("booting");
@@ -848,7 +848,7 @@ async function loadRecords() {
     if (data.status !== "success") throw new Error(data.message);
     const recordData = data.records || data.respon;
     const officerData = data.officers || data.pegawai;
-    if (!Array.isArray(recordData) || !Array.isArray(officerData)) throw new Error("Respons GAS tidak mengandungi data RESPONDOPR dan PEGAWAI.");
+    if (!Array.isArray(recordData) || !Array.isArray(officerData)) throw new Error("Sumber data portal tidak lengkap.");
     state.records = recordData;
     state.officers = officerData;
     state.connection = data.connection || {
@@ -859,7 +859,7 @@ async function loadRecords() {
       recordCount: recordData.length,
       officerCount: officerData.length
     };
-    if (state.connection.respondOprConnected === false || state.connection.pegawaiConnected === false) throw new Error("Tab RESPONDOPR atau PEGAWAI belum bersambung.");
+    if (state.connection.respondOprConnected === false || state.connection.pegawaiConnected === false) throw new Error("Sumber data portal belum bersambung sepenuhnya.");
     state.loadError = "";
   } catch (error) {
     console.warn("Data OPR tidak dapat dimuatkan", error);
@@ -871,6 +871,7 @@ async function loadRecords() {
     state.dataLoading = false;
   }
   renderHome();
+  syncArchiveMonthOptions();
   renderArchive();
   if (document.activeElement === $("[name=namaPegawai]")) filterOfficers();
   return !state.loadError;
@@ -903,6 +904,18 @@ function renderArchive() {
   rows.forEach(row => (groups[row[key] || "Tidak dinyatakan"] ??= []).push(row));
   $("#archive-list").innerHTML = Object.entries(groups).map(([name, list]) => `<section class="archive-group"><h2>${escapeHtml(name)} <small>${list.length} rekod</small></h2>${list.map(row => `<div class="archive-row"><small>${formatDisplayDate(row.timestamp)}</small><div><strong>${escapeHtml(row.tajukProgram || "Tanpa tajuk")}</strong><small>${escapeHtml(row.namaPegawai || "")} · ${escapeHtml(FORM_TYPES[row.jenisOpr]?.title || "OPR Umum")}</small></div><span class="badge">${escapeHtml(row.bidang || "")}</span><div class="archive-actions">${row.pdfUrl ? `<a href="${escapeHtml(row.pdfUrl)}" target="_blank" rel="noopener">PDF</a>` : ""}<button data-edit="${escapeHtml(row.rowId)}">Edit</button></div></div>`).join("")}</section>`).join("") || "<p class=\"empty-state\">Tiada rekod sepadan.</p>";
   bindEditButtons();
+}
+
+function syncArchiveMonthOptions() {
+  const select = $("#archive-date");
+  const selected = select.value;
+  const months = [...new Set(state.records.map(row => toMonth(row.timestamp)).filter(value => /^\d{4}-\d{2}$/.test(value)))].sort().reverse();
+  select.innerHTML = `<option value="">Semua bulan</option>${months.map(value => {
+    const [year, month] = value.split("-").map(Number);
+    const label = new Intl.DateTimeFormat("ms-MY", { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1));
+    return `<option value="${value}">${escapeHtml(label)}</option>`;
+  }).join("")}`;
+  select.value = months.includes(selected) ? selected : "";
 }
 
 function bindEditButtons() {
