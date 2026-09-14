@@ -502,7 +502,7 @@ function fitReportToSinglePage() {
 function fitPreview() {
   const shell = $("#preview-shell");
   const area = $("#opr-preview");
-  if (!shell || !area || area.classList.contains("pdf-capture")) return;
+  if (!shell || !area) return;
   area.style.transform = "none";
   const scale = Math.min(1, shell.clientWidth / (area.offsetWidth || 794));
   area.style.transform = `scale(${scale})`;
@@ -693,60 +693,305 @@ async function waitForPreviewImages() {
   })));
 }
 
-function addSelectableTextLayer(pdf, area) {
-  const areaRect = area.getBoundingClientRect();
-  const xScale = 210 / areaRect.width;
-  const yScale = 297 / areaRect.height;
-  const walker = document.createTreeWalker(area, NodeFilter.SHOW_TEXT);
-  pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(255, 255, 255);
-  let node;
-  while ((node = walker.nextNode())) {
-    const parent = node.parentElement;
-    const value = String(node.nodeValue || "").replace(/\s+/g, " ").trim().replace(/[\u{1F000}-\u{1FAFF}]/gu, "");
-    if (!parent || !value) continue;
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    const rect = range.getBoundingClientRect();
-    if (!rect.width || !rect.height) continue;
-    const fontSize = Math.max(2.2, parseFloat(getComputedStyle(parent).fontSize || "8") * yScale);
-    pdf.setFontSize(fontSize);
-    pdf.text(pdf.splitTextToSize(value, Math.max(4, rect.width * xScale)), Math.max(0, (rect.left - areaRect.left) * xScale), Math.max(fontSize, (rect.top - areaRect.top) * yScale + fontSize), { lineHeightFactor: 1.15 });
+const pdfImageCache = new Map();
+
+function normalizePdfText(value = "") {
+  return String(value)
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\u00a0/g, " ")
+    .trim();
+}
+
+async function imageSourceToDataUrl(source) {
+  if (!source) return "";
+  if (source.startsWith("data:")) return source;
+  if (pdfImageCache.has(source)) return pdfImageCache.get(source);
+  const promise = fetch(source, { cache: "force-cache" })
+    .then(response => {
+      if (!response.ok) throw new Error(`Gambar tidak dapat dimuatkan (${response.status}).`);
+      return response.blob();
+    })
+    .then(blobToDataUrl);
+  pdfImageCache.set(source, promise);
+  try {
+    return await promise;
+  } catch (error) {
+    pdfImageCache.delete(source);
+    throw error;
   }
 }
 
+function imageDimensions(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+    image.onerror = () => reject(new Error("Format gambar tidak dapat dibaca untuk PDF."));
+    image.src = dataUrl;
+  });
+}
+
+async function drawContainedPdfImage(pdf, source, x, y, width, height, alias) {
+  if (!source) return;
+  const dataUrl = await imageSourceToDataUrl(source);
+  const dimensions = await imageDimensions(dataUrl);
+  const ratio = Math.min(width / dimensions.width, height / dimensions.height);
+  const drawWidth = dimensions.width * ratio;
+  const drawHeight = dimensions.height * ratio;
+  pdf.addImage(dataUrl, undefined, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight, alias, "FAST");
+}
+
+function roundedBox(pdf, x, y, width, height, radius = 1.8, fill = [250, 252, 254]) {
+  pdf.setDrawColor(203, 213, 225);
+  pdf.setFillColor(...fill);
+  pdf.setLineWidth(0.25);
+  pdf.roundedRect(x, y, width, height, radius, radius, "FD");
+}
+
+function reportMeta(data) {
+  return [
+    ["TARIKH", data.tarikhPelaksanaan],
+    ...(state.type === "umum" ? [["MASA", data.masa]] : []),
+    ["PENGLIBATAN", data.penglibatan],
+    ["LOKASI", data.lokasi],
+    ...(data.pelibatan ? [["KERJASAMA", data.pelibatan]] : [])
+  ];
+}
+
+function reportSections(data) {
+  const metadata = new Set(["tajukProgram", "tarikhPelaksanaan", "masa", "penglibatan", "lokasi", "pelibatan"]);
+  return FORM_TYPES[state.type].fields
+    .filter(config => !metadata.has(config.name))
+    .map(config => ({ label: config.label.toUpperCase(), value: normalizePdfText(data[config.name] || "") }));
+}
+
+function paragraphLines(pdf, value, width) {
+  const sourceLines = normalizePdfText(value).split(/\r?\n/);
+  return sourceLines.flatMap(rawLine => {
+    const line = rawLine.trim();
+    if (!line) return [{ text: "", bullet: false }];
+    const bullet = /^[\u2022\u25cf]\s*/.test(line);
+    const text = bullet ? line.replace(/^[\u2022\u25cf]\s*/, "") : line;
+    const lines = pdf.splitTextToSize(text, Math.max(8, width - (bullet ? 4 : 0)));
+    return lines.map((part, index) => ({ text: part, bullet: bullet && index === 0, indent: bullet }));
+  });
+}
+
+function sectionHeight(pdf, section, width, bodyFont, lineHeight) {
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(bodyFont);
+  const lines = paragraphLines(pdf, section.value, width - 5);
+  return Math.max(10.5, 6.2 + Math.max(1, lines.length) * lineHeight);
+}
+
+function measureNativePdfLayout(pdf, data, options) {
+  const sections = reportSections(data);
+  const sectionHeights = sections.map(section => sectionHeight(pdf, section, options.contentWidth, options.bodyFont, options.lineHeight));
+  const galleryHeight = options.gallery.length ? options.galleryHeight : 0;
+  const total = options.marginTop + options.headerHeight + 3 + options.heroHeight + 2.5 + options.metaHeight + 2.5
+    + sectionHeights.reduce((sum, height) => sum + height, 0) + Math.max(0, sections.length - 1) * options.sectionGap
+    + (galleryHeight ? 2.5 + galleryHeight : 0) + 2.5 + options.footerHeight + options.marginBottom;
+  return { sections, sectionHeights, total };
+}
+
+function fitNativePdfLayout(pdf, data, gallery) {
+  const options = {
+    marginX: 6.5,
+    marginTop: 6.5,
+    marginBottom: 5.5,
+    contentWidth: 197,
+    headerHeight: 22,
+    heroHeight: 82,
+    metaHeight: 15,
+    galleryHeight: 38,
+    footerHeight: 10,
+    sectionGap: 1.8,
+    bodyFont: 7.2,
+    lineHeight: 3.05,
+    gallery
+  };
+  let measured = measureNativePdfLayout(pdf, data, options);
+  while (measured.total > 297 && options.heroHeight > 54) {
+    options.heroHeight -= 2;
+    measured = measureNativePdfLayout(pdf, data, options);
+  }
+  while (measured.total > 297 && options.galleryHeight > 31) {
+    options.galleryHeight -= 1;
+    measured = measureNativePdfLayout(pdf, data, options);
+  }
+  while (measured.total > 297 && options.bodyFont > 5.8) {
+    options.bodyFont -= 0.2;
+    options.lineHeight -= 0.08;
+    measured = measureNativePdfLayout(pdf, data, options);
+  }
+  if (measured.total > 297) throw new Error("Laporan terlalu panjang untuk satu halaman A4. Sila ringkaskan isi laporan.");
+  return { ...options, ...measured };
+}
+
+function drawPdfParagraph(pdf, value, x, y, width, fontSize, lineHeight) {
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(fontSize);
+  pdf.setTextColor(51, 65, 85);
+  const lines = paragraphLines(pdf, value, width);
+  lines.forEach((line, index) => {
+    const lineY = y + index * lineHeight;
+    if (line.bullet) {
+      pdf.setFillColor(51, 65, 85);
+      pdf.circle(x + 0.8, lineY - 0.75, 0.48, "F");
+    }
+    pdf.text(line.text, x + (line.indent ? 3 : 0), lineY);
+  });
+}
+
 async function generatePdfBlob() {
-  const area = $("#opr-preview");
   const fit = fitReportToSinglePage();
   if (fit.tooLong) throw new Error("Laporan terlalu panjang untuk satu halaman A4. Sila ringkaskan isi laporan.");
-  await nextFrame();
   await document.fonts.ready;
   await waitForPreviewImages();
-  const oldTransform = area.style.transform;
-  area.classList.add("pdf-capture");
-  area.style.transform = "none";
-  try {
-    const canvas = await html2canvas(area, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: "#ffffff",
-      logging: false,
-      width: area.offsetWidth,
-      height: area.offsetHeight,
-      windowWidth: area.offsetWidth,
-      windowHeight: area.offsetHeight
-    });
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
-    addSelectableTextLayer(pdf, area);
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 210, 297, undefined, "FAST");
-    return pdf.output("blob");
-  } finally {
-    area.classList.remove("pdf-capture");
-    area.style.transform = oldTransform;
-    fitPreview();
+
+  const data = formData();
+  const gallery = [2, 3, 4].filter(index => state.images[index].dataUrl);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true, putOnlyUsedFonts: true });
+  pdf.setProperties({
+    title: normalizePdfText(data.tajukProgram || "Laporan OPR"),
+    subject: `${FORM_TYPES[state.type].title} - ${state.field}`,
+    author: "SK Methodist PJ",
+    creator: "OPR Command Centre"
+  });
+
+  const layout = fitNativePdfLayout(pdf, data, gallery);
+  const x = layout.marginX;
+  const width = layout.contentWidth;
+  let y = layout.marginTop;
+
+  const [jataData, logoData] = await Promise.all([
+    imageSourceToDataUrl(JATA_URL),
+    imageSourceToDataUrl("assets/logo-mps.png")
+  ]);
+  await drawContainedPdfImage(pdf, jataData, x + 7, y + 1.2, 17, 17.5, "jata-negara");
+  await drawContainedPdfImage(pdf, logoData, x + width - 25, y + 0.5, 18, 19, "logo-sekolah");
+
+  const centerX = 105;
+  pdf.setTextColor(11, 20, 39);
+  pdf.setFont("times", "bold");
+  pdf.setFontSize(11.5);
+  pdf.text("LAPORAN RINGKAS PROGRAM / AKTIVITI (ONE PAGE REPORT)", centerX, y + 7, { align: "center" });
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(10.5);
+  pdf.text("SK METHODIST PJ", centerX, y + 12.2, { align: "center" });
+  pdf.setFont("helvetica", "italic");
+  pdf.setFontSize(7);
+  pdf.setTextColor(100, 116, 139);
+  pdf.text('"UPHOLD THE TRUTH"', centerX, y + 16.4, { align: "center" });
+  pdf.setDrawColor(203, 213, 225);
+  pdf.setLineWidth(0.28);
+  pdf.line(x, y + layout.headerHeight, x + width, y + layout.headerHeight);
+  y += layout.headerHeight + 3;
+
+  pdf.setFillColor(15, 23, 42);
+  pdf.roundedRect(x, y, width, layout.heroHeight, 2.2, 2.2, "F");
+  if (state.images[1].dataUrl) {
+    const heroData = await imageSourceToDataUrl(state.images[1].dataUrl);
+    pdf.addImage(heroData, undefined, x, y, width, layout.heroHeight, "hero-program", "FAST");
   }
+  const overlayHeight = Math.min(22, layout.heroHeight * 0.32);
+  pdf.saveGraphicsState();
+  if (pdf.GState) pdf.setGState(new pdf.GState({ opacity: 0.78 }));
+  pdf.setFillColor(2, 6, 23);
+  pdf.rect(x, y + layout.heroHeight - overlayHeight, width, overlayHeight, "F");
+  pdf.restoreGraphicsState();
+  pdf.setDrawColor(30, 41, 59);
+  pdf.setLineWidth(0.3);
+  pdf.roundedRect(x, y, width, layout.heroHeight, 2.2, 2.2, "S");
+
+  const heroTitle = normalizePdfText(data.tajukProgram || "").toUpperCase();
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(15);
+  pdf.setTextColor(255, 255, 255);
+  const titleLines = pdf.splitTextToSize(heroTitle, width - 8).slice(0, 2);
+  const titleStart = y + layout.heroHeight - 8.5 - Math.max(0, titleLines.length - 1) * 5;
+  pdf.text(titleLines, x + 4, titleStart, { lineHeightFactor: 1.05 });
+  pdf.setFontSize(6.5);
+  pdf.setTextColor(219, 234, 254);
+  pdf.text(`${FORM_TYPES[state.type].title.toUpperCase()} - ${normalizePdfText(state.field).toUpperCase()}`, x + 4, y + layout.heroHeight - 3.4);
+  y += layout.heroHeight + 2.5;
+
+  const metadata = reportMeta(data);
+  roundedBox(pdf, x, y, width, layout.metaHeight, 1.4, [248, 250, 252]);
+  const metaWidth = width / metadata.length;
+  metadata.forEach(([label, value], index) => {
+    const cellX = x + metaWidth * index;
+    if (index) {
+      pdf.setDrawColor(203, 213, 225);
+      pdf.line(cellX, y, cellX, y + layout.metaHeight);
+    }
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(5.6);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text(label, cellX + metaWidth / 2, y + 4, { align: "center" });
+    pdf.setFontSize(7.2);
+    pdf.setTextColor(30, 41, 59);
+    const valueLines = pdf.splitTextToSize(normalizePdfText(value || ""), metaWidth - 4).slice(0, 3);
+    pdf.text(valueLines, cellX + metaWidth / 2, y + 7.8, { align: "center", lineHeightFactor: 1.05 });
+  });
+  y += layout.metaHeight + 2.5;
+
+  layout.sections.forEach((section, index) => {
+    const height = layout.sectionHeights[index];
+    roundedBox(pdf, x, y, width, height, 1.7, [250, 252, 254]);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(7);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text(section.label, x + 2.5, y + 3.8);
+    pdf.setDrawColor(223, 231, 239);
+    pdf.setLineWidth(0.2);
+    pdf.line(x + 2.5, y + 5.2, x + width - 2.5, y + 5.2);
+    drawPdfParagraph(pdf, section.value, x + 2.5, y + 8.2, width - 5, layout.bodyFont, layout.lineHeight);
+    y += height + layout.sectionGap;
+  });
+  if (layout.sections.length) y -= layout.sectionGap;
+
+  if (gallery.length) {
+    y += 2.5;
+    roundedBox(pdf, x, y, width, layout.galleryHeight, 1.7, [255, 255, 255]);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(7);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text("LAMPIRAN BERGAMBAR", x + 2.5, y + 4.2);
+    const gap = 2;
+    const imageY = y + 6;
+    const imageHeight = layout.galleryHeight - 8;
+    const imageWidth = (width - 5 - gap * 2) / 3;
+    for (let slot = 0; slot < 3; slot += 1) {
+      const imageX = x + 2.5 + slot * (imageWidth + gap);
+      pdf.setDrawColor(226, 232, 240);
+      pdf.setFillColor(248, 250, 252);
+      pdf.roundedRect(imageX, imageY, imageWidth, imageHeight, 1, 1, "FD");
+      const index = gallery[slot];
+      if (index) {
+        const galleryData = await imageSourceToDataUrl(state.images[index].dataUrl);
+        pdf.addImage(galleryData, undefined, imageX, imageY, imageWidth, imageHeight, `gallery-${slot}`, "FAST");
+      }
+    }
+    y += layout.galleryHeight;
+  }
+
+  y += 2.5;
+  pdf.setDrawColor(203, 213, 225);
+  pdf.line(x, y, x + width, y);
+  y += 3.2;
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(6.5);
+  pdf.setTextColor(71, 85, 105);
+  pdf.text(`Disediakan oleh: ${normalizePdfText(data.namaPegawai || "")} (${normalizePdfText(data.jawatanPegawai || "")})`, x + 2, y);
+  pdf.text(`Tarikh Laporan: ${normalizePdfText(formatDisplayDate(data.tarikhLaporan))}`, x + 2, y + 3.3);
+  pdf.setFontSize(5.8);
+  pdf.setTextColor(148, 163, 184);
+  pdf.text("Digital Hub SK Methodist PJ | OPR Dashboard", x + width - 2, y + 1.6, { align: "right" });
+
+  return pdf.output("blob");
 }
 
 async function submitRecord() {
