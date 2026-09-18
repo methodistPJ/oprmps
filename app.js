@@ -195,7 +195,7 @@ async function bootstrapApp() {
   loader.className = "app-loader";
   loader.setAttribute("aria-busy", "true");
   status.textContent = "Menyelaraskan data dan akses portal…";
-  detail.textContent = "OPR Command Centre";
+  detail.textContent = "OPR Pusat Dokumentasi";
   retry.hidden = true;
 
   const connected = await loadRecords();
@@ -859,7 +859,7 @@ async function generatePdfBlob() {
     title: normalizePdfText(data.tajukProgram || "Laporan OPR"),
     subject: `${FORM_TYPES[state.type].title} - ${state.field}`,
     author: "SK Methodist PJ",
-    creator: "OPR Command Centre"
+    creator: "OPR Pusat Dokumentasi"
   });
 
   const layout = fitNativePdfLayout(pdf, data, gallery);
