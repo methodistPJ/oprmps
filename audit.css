@@ -162,8 +162,8 @@ body.home-mode main { padding-top: 0; padding-bottom: 0; }
 .report-header .report-jata { justify-self: start; max-width: 78px; max-height: 60px; }
 .report-header .report-school-logo { justify-self: end; max-width: 88px; max-height: 70px; }
 
-.report-hero { position: relative; width: 100%; height: 315px; margin-top: 10px; overflow: hidden; display: flex; align-items: end; border: 1px solid #1e293b; border-radius: 8px; background: #0f172a; }
-.report-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.report-hero { position: relative; width: 100%; height: auto; aspect-ratio: var(--hero-ratio, 197 / 82); margin-top: 10px; overflow: hidden; display: flex; align-items: end; border: 1px solid #1e293b; border-radius: 8px; background: #0f172a; box-sizing: content-box; border: 0; outline: 1px solid #1e293b; }
+.report-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .report-hero::after { content: ""; position: absolute; inset: 35% 0 0; background: linear-gradient(to top, #020617e8, transparent); }
 .report-hero > div { position: relative; z-index: 1; width: 100%; padding: 15px; color: #fff; }
 .report-hero h1 { margin: 0; color: #fff; font-family: Arial, sans-serif; font-size: 18px; line-height: 1.12; letter-spacing: .02em; text-transform: uppercase; }
@@ -183,8 +183,8 @@ body.home-mode main { padding-top: 0; padding-bottom: 0; }
 .report-gallery { margin-top: 8px; padding: 7px; border: 1px solid #cbd5e1; border-radius: 7px; background: #fff; break-inside: avoid; }
 .report-gallery h3 { margin: 0 0 5px; font-size: 7.5px; }
 .report-gallery > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-.report-gallery figure { height: 116px; margin: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 4px; background: #f8fafc; }
-.report-gallery img { width: 100%; height: 100%; object-fit: cover; }
+.report-gallery figure { height: auto; aspect-ratio: var(--gallery-ratio, 188 / 90); margin: 0; overflow: hidden; border: 0; outline: 1px solid #e2e8f0; border-radius: 4px; background: #f8fafc; }
+.report-gallery img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .report-footer { display: flex; justify-content: space-between; align-items: end; margin-top: 8px; padding-top: 6px; border-top: 1px solid #cbd5e1; color: #475569; font-size: 7.5px; line-height: 1.45; break-inside: avoid; }
 .report-footer span { color: #94a3b8; font-size: 6.5px; }
 

@@ -1,5 +1,10 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyhPN_YBVpTp_fKne4BAlxIkyBA9wtT3QjIFkAsi-ZxX6m69IkUlw3KeRgzfG-xy6-vbQ/exec";
 const JATA_URL = "https://i.ibb.co/fYY58Rh2/JATA-NEGARA-PNG.png";
+// Shared frame contract for selection, preview and native PDF (millimetres).
+const PHOTO_FRAMES = Object.freeze({
+  hero: { width: 197, height: 82, outputWidth: 1576, outputHeight: 656 },
+  gallery: { width: 188 / 3, height: 30, outputWidth: 1128, outputHeight: 540 }
+});
 
 const FORM_TYPES = {
   umum: {
@@ -125,7 +130,8 @@ function createImageState() {
     dataUrl: "",
     changed: false,
     sourceUrl: "",
-    originalSource: ""
+    originalSource: "",
+    cropData: null
   }]));
 }
 
@@ -466,19 +472,13 @@ function renderPreview() {
     ${gallery.length ? `<section class="report-gallery"><h3>📸 LAMPIRAN BERGAMBAR</h3><div>${gallery.map(index => `<figure><img src="${state.images[index].dataUrl}" alt="Gambar ${index}"></figure>`).join("")}</div></section>` : ""}
     <footer class="report-footer"><div><b>Disediakan oleh:</b> ${escapeHtml(data.namaPegawai || "")} (${escapeHtml(data.jawatanPegawai || "")})<br><b>Tarikh Laporan:</b> ${escapeHtml(formatDisplayDate(data.tarikhLaporan))}</div><span>Digital Hub SK Methodist PJ | OPR Dashboard</span></footer>
   </div>`;
+  const content = $("#print-content");
+  content.style.setProperty("--hero-ratio", `${PHOTO_FRAMES.hero.width} / ${PHOTO_FRAMES.hero.height}`);
+  content.style.setProperty("--gallery-ratio", `${PHOTO_FRAMES.gallery.width} / ${PHOTO_FRAMES.gallery.height}`);
   requestAnimationFrame(() => {
     fitReportToSinglePage();
     fitPreview();
   });
-}
-
-function fitHeroForSinglePage() {
-  const area = $("#opr-preview");
-  const hero = area?.querySelector(".report-hero");
-  if (!area || !hero) return;
-  hero.style.height = "";
-  const overflow = area.scrollHeight - area.clientHeight;
-  if (overflow > 0) hero.style.height = `${Math.max(150, hero.offsetHeight - overflow - 8)}px`;
 }
 
 function fitReportToSinglePage() {
@@ -488,7 +488,7 @@ function fitReportToSinglePage() {
   if (!area || !content || area.clientHeight <= 0 || !area.getClientRects().length) return { scale: 1, tooLong: false };
   content.style.transform = "none";
   content.style.width = "100%";
-  fitHeroForSinglePage();
+  // Scale the whole report uniformly; never change a selected photo frame.
   const requiredScale = Math.min(1, (area.clientHeight - 1) / content.scrollHeight);
   const minimumReadableScale = 0.76;
   const scale = Math.max(minimumReadableScale, requiredScale);
@@ -527,6 +527,7 @@ function processAndUploadImage(event) {
   if (image.sourceUrl?.startsWith("blob:")) URL.revokeObjectURL(image.sourceUrl);
   image.sourceUrl = URL.createObjectURL(file);
   image.originalSource = image.sourceUrl;
+  image.cropData = null;
   openImageEditor(index, image.sourceUrl);
 }
 
@@ -539,8 +540,9 @@ function openImageEditor(index, sourceOverride = "") {
   const image = $("#cropper-image");
   image.src = source;
   cropperInstance?.destroy();
+  const frame = index === 1 ? PHOTO_FRAMES.hero : PHOTO_FRAMES.gallery;
   cropperInstance = new Cropper(image, {
-    aspectRatio: index === 1 ? 16 / 9 : 4 / 3,
+    aspectRatio: frame.width / frame.height,
     viewMode: 1,
     dragMode: "move",
     autoCropArea: 1,
@@ -556,7 +558,10 @@ function openImageEditor(index, sourceOverride = "") {
     cropBoxResizable: false,
     scalable: false,
     rotatable: false,
-    toggleDragModeOnDblclick: false
+    toggleDragModeOnDblclick: false,
+    ready() {
+      if (imageState.cropData) cropperInstance.setData(imageState.cropData);
+    }
   });
 }
 
@@ -570,15 +575,18 @@ function closeImageEditor() {
 function applyImageCrop() {
   if (!cropperInstance || !activeImageIndex) return;
   const index = activeImageIndex;
+  const frame = index === 1 ? PHOTO_FRAMES.hero : PHOTO_FRAMES.gallery;
+  const cropData = cropperInstance.getData();
   const canvas = cropperInstance.getCroppedCanvas({
-    width: index === 1 ? 1280 : 900,
-    height: index === 1 ? 720 : 675,
+    width: frame.outputWidth,
+    height: frame.outputHeight,
     imageSmoothingEnabled: true,
     imageSmoothingQuality: "high",
     fillColor: "#ffffff"
   });
   const image = state.images[index];
   image.dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+  image.cropData = cropData;
   image.changed = true;
   state.removedPhotos = state.removedPhotos.filter(value => value !== index);
   closeImageEditor();
@@ -592,6 +600,7 @@ function removePhoto(index) {
   image.dataUrl = "";
   image.changed = false;
   image.originalSource = "";
+  image.cropData = null;
   if (!state.removedPhotos.includes(index)) state.removedPhotos.push(index);
   const input = $(`[data-image="${index}"]`);
   if (input) input.value = "";
@@ -802,9 +811,9 @@ function fitNativePdfLayout(pdf, data, gallery) {
     marginBottom: 5.5,
     contentWidth: 197,
     headerHeight: 22,
-    heroHeight: 82,
+    heroHeight: PHOTO_FRAMES.hero.height,
     metaHeight: 15,
-    galleryHeight: 38,
+    galleryHeight: PHOTO_FRAMES.gallery.height + 8,
     footerHeight: 10,
     sectionGap: 1.8,
     bodyFont: 7.2,
@@ -812,14 +821,6 @@ function fitNativePdfLayout(pdf, data, gallery) {
     gallery
   };
   let measured = measureNativePdfLayout(pdf, data, options);
-  while (measured.total > 297 && options.heroHeight > 54) {
-    options.heroHeight -= 2;
-    measured = measureNativePdfLayout(pdf, data, options);
-  }
-  while (measured.total > 297 && options.galleryHeight > 31) {
-    options.galleryHeight -= 1;
-    measured = measureNativePdfLayout(pdf, data, options);
-  }
   while (measured.total > 297 && options.bodyFont > 5.8) {
     options.bodyFont -= 0.2;
     options.lineHeight -= 0.08;
@@ -893,8 +894,7 @@ async function generatePdfBlob() {
   pdf.setFillColor(15, 23, 42);
   pdf.roundedRect(x, y, width, layout.heroHeight, 2.2, 2.2, "F");
   if (state.images[1].dataUrl) {
-    const heroData = await imageSourceToDataUrl(state.images[1].dataUrl);
-    pdf.addImage(heroData, undefined, x, y, width, layout.heroHeight, "hero-program", "FAST");
+    await drawContainedPdfImage(pdf, state.images[1].dataUrl, x, y, width, layout.heroHeight, "hero-program");
   }
   const overlayHeight = Math.min(22, layout.heroHeight * 0.32);
   pdf.saveGraphicsState();
@@ -971,8 +971,7 @@ async function generatePdfBlob() {
       pdf.roundedRect(imageX, imageY, imageWidth, imageHeight, 1, 1, "FD");
       const index = gallery[slot];
       if (index) {
-        const galleryData = await imageSourceToDataUrl(state.images[index].dataUrl);
-        pdf.addImage(galleryData, undefined, imageX, imageY, imageWidth, imageHeight, `gallery-${slot}`, "FAST");
+        await drawContainedPdfImage(pdf, state.images[index].dataUrl, imageX, imageY, imageWidth, imageHeight, `gallery-${slot}`);
       }
     }
     y += layout.galleryHeight;
