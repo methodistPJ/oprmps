@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ms">
+<html lang="ms" data-maintenance="true">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -26,8 +26,70 @@
   <link rel="stylesheet" href="audit.css?v=20260918a" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Set data-maintenance="false" on <html> to reopen the portal. -->
+  <style>
+    #maintenance-overlay { display: none; }
+    html[data-maintenance="true"], html[data-maintenance="true"] body { margin: 0; overflow: hidden; }
+    html[data-maintenance="true"] #portal-content { display: none !important; }
+    html[data-maintenance="true"] #maintenance-overlay {
+      position: fixed; inset: 0; z-index: 2147483647; display: flex;
+      flex-direction: column; overflow: auto; min-height: 100svh;
+      padding: clamp(22px, 5vw, 64px); box-sizing: border-box;
+      background: radial-gradient(ellipse at 85% 15%, #dbece4 0, transparent 45%),
+                  radial-gradient(ellipse at 5% 95%, #e7e2d6 0, transparent 45%), #f6f5ef;
+      color: #173d35; font-family: "DM Sans", Arial, sans-serif;
+    }
+    .maintenance-brand { display: flex; align-items: center; gap: 13px; }
+    .maintenance-brand img { width: 52px; height: 60px; object-fit: contain; }
+    .maintenance-brand strong { display: block; font-size: 16px; letter-spacing: -.02em; }
+    .maintenance-brand small { display: block; margin-top: 4px; color: #5c7067; font-size: 10px; letter-spacing: .15em; }
+    .maintenance-main { width: 100%; max-width: 960px; margin: auto; padding: 52px 0; }
+    .maintenance-status { display: inline-flex; align-items: center; gap: 9px; padding: 10px 14px;
+      border: 1px solid #b6c9be; border-radius: 100px; background: #ffffff85;
+      color: #315d4b; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .maintenance-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #92723a; }
+    .maintenance-kicker { margin: 36px 0 14px; font-size: 11px; font-weight: 700; letter-spacing: .2em; color: #64776c; }
+    #maintenance-title { max-width: 850px; margin: 0; font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(42px, 7.5vw, 88px); font-weight: 600; line-height: 1.08; letter-spacing: -.045em; }
+    #maintenance-title em { color: #75815c; font-weight: 600; }
+    .maintenance-description { max-width: 550px; margin: 26px 0 0; font-size: clamp(15px, 2vw, 18px); line-height: 1.8; color: #52655b; }
+    .maintenance-note { display: flex; align-items: flex-start; gap: 14px; max-width: 550px; margin-top: 32px;
+      padding: 20px; border: 1px solid #cdd7ca; border-radius: 16px; background: #ffffff80; }
+    .maintenance-note svg { flex-shrink: 0; margin-top: 2px; color: #58755f; }
+    .maintenance-note strong { display: block; font-size: 13px; line-height: 1.5; }
+    .maintenance-note p { margin: 5px 0 0; font-size: 13px; line-height: 1.7; color: #65746a; }
+    .maintenance-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      padding-top: 22px; border-top: 1px solid #cdd7ca; color: #65746a; font-size: 11px; line-height: 1.6; }
+    .maintenance-footer span:last-child { letter-spacing: .12em; font-size: 10px; }
+    @media (max-width: 500px) {
+      .maintenance-main { padding: 40px 0; }
+      .maintenance-brand img { width: 40px; height: 48px; }
+      .maintenance-note { padding: 16px; }
+    }
+    @media print {
+      html[data-maintenance="true"] #maintenance-overlay { position: static; min-height: 100vh; }
+    }
+  </style>
 </head>
 <body class="booting">
+  <section id="maintenance-overlay" aria-labelledby="maintenance-title" aria-describedby="maintenance-description">
+    <div class="maintenance-brand">
+      <img src="assets/logo-mps.png" alt="Logo SK Methodist PJ" width="52" height="60">
+      <div><strong>Digital Hub</strong><small>SK METHODIST PJ</small></div>
+    </div>
+    <div class="maintenance-main">
+      <div class="maintenance-status">Penyelenggaraan sedang berlangsung</div>
+      <p class="maintenance-kicker">MPS OPR · PUSAT DOKUMENTASI</p>
+      <h1 id="maintenance-title">Kami sedang<br><em>menambah baik.</em></h1>
+      <p class="maintenance-description" id="maintenance-description">Portal MPS OPR ditutup sementara untuk kerja penyelenggaraan dan penambahbaikan sistem.</p>
+      <div class="maintenance-note">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><strong>Sila kembali semula kemudian.</strong><p>Borang dan arkib OPR tidak dapat diakses buat sementara waktu. Terima kasih atas kesabaran dan kerjasama anda.</p></div>
+      </div>
+    </div>
+    <div class="maintenance-footer"><span>Digital Hub SK Methodist PJ</span><span>DOKUMENTASI LEBIH TERATUR.</span></div>
+  </section>
+  <div id="portal-content" inert aria-hidden="true">
   <div id="app-loader" class="app-loader" role="status" aria-live="polite" aria-busy="true">
     <div class="app-loader-inner"><p class="app-loader-kicker">SK METHODIST PJ</p><h1>Menyediakan portal.</h1><div class="app-loader-line"><i></i></div><p id="app-loader-status">Menyelaraskan data dan akses portal…</p><small id="app-loader-detail">OPR Pusat Dokumentasi</small><button id="retry-bootstrap" type="button" hidden>Cuba semula</button></div>
   </div>
@@ -102,6 +164,17 @@
   <div id="image-editor-modal" class="image-editor-modal" hidden><div class="image-editor-card"><div class="image-editor-head"><div><strong>Kedudukan Gambar</strong><small>Tarik gambar untuk menetapkan kedudukan dalam pratonton dan PDF.</small></div><button type="button" id="close-image-editor">×</button></div><div class="image-editor-stage"><img id="cropper-image" alt="Editor gambar"></div><div class="image-editor-actions"><button type="button" id="crop-reset" class="secondary">Kembali asal</button><span></span><button type="button" id="crop-cancel" class="secondary">Batal</button><button type="button" id="crop-apply" class="primary">Gunakan gambar</button></div></div></div>
   <div id="save-progress-modal" class="save-progress-modal" hidden><div class="save-progress-card"><h2>Menyediakan Laporan OPR</h2><p>Jangan tutup halaman. Proses gambar, PDF dan Drive boleh mengambil masa sehingga 1–2 minit.</p><div class="save-steps"><div data-step="images"><i>1</i><span>Memproses gambar</span></div><div data-step="pdf"><i>2</i><span>Menjana PDF satu halaman</span></div><div data-step="drive"><i>3</i><span>Menyimpan ke Drive</span></div><div data-step="done"><i>4</i><span>Selesai</span></div></div><p id="save-progress-message" hidden></p><button id="close-save-progress" type="button" class="primary" hidden>Tutup</button></div></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-  <script src="app.js?v=20260918a"></script>
+  </div>
+  <script>
+    // Do not start the app or its data requests while maintenance is active.
+    if (document.documentElement.dataset.maintenance !== 'true') {
+      const portal = document.getElementById('portal-content');
+      portal.inert = false;
+      portal.removeAttribute('aria-hidden');
+      const app = document.createElement('script');
+      app.src = 'app.js?v=20260918a';
+      document.body.appendChild(app);
+    }
+  </script>
 </body>
 </html>
