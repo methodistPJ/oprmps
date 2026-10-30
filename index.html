@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OPR Pusat Dokumentasi | SK Methodist PJ</title>
+  <title>Penyelenggaraan | MPS OPR · Digital Hub</title>
   <meta name="description" content="Laporan yang jelas. Tindakan yang bermakna. Pusat pengurusan OPR yang pantas untuk semua bidang SK Methodist PJ." />
   <link rel="icon" type="image/png" href="assets/logo-mps.png" />
   <link rel="apple-touch-icon" href="assets/logo-mps.png" />
@@ -22,16 +22,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260826a" />
-  <link rel="stylesheet" href="audit.css?v=20260918a" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- Set data-maintenance="false" on <html> to reopen the portal. -->
+  <!-- Temporary maintenance page. Restore the portal from Git history when ready. -->
   <style>
-    #maintenance-overlay { display: none; }
-    html[data-maintenance="true"], html[data-maintenance="true"] body { margin: 0; overflow: hidden; }
-    html[data-maintenance="true"] #portal-content { display: none !important; }
-    html[data-maintenance="true"] #maintenance-overlay {
+    html, html body { margin: 0; overflow: hidden; }
+    html #maintenance-overlay {
       position: fixed; inset: 0; z-index: 2147483647; display: flex;
       flex-direction: column; overflow: auto; min-height: 100svh;
       padding: clamp(22px, 5vw, 64px); box-sizing: border-box;
@@ -67,11 +61,11 @@
       .maintenance-note { padding: 16px; }
     }
     @media print {
-      html[data-maintenance="true"] #maintenance-overlay { position: static; min-height: 100vh; }
+      html #maintenance-overlay { position: static; min-height: 100vh; }
     }
   </style>
 </head>
-<body class="booting">
+<body>
   <section id="maintenance-overlay" aria-labelledby="maintenance-title" aria-describedby="maintenance-description">
     <div class="maintenance-brand">
       <img src="assets/logo-mps.png" alt="Logo SK Methodist PJ" width="52" height="60">
@@ -89,92 +83,5 @@
     </div>
     <div class="maintenance-footer"><span>Digital Hub SK Methodist PJ</span><span>DOKUMENTASI LEBIH TERATUR.</span></div>
   </section>
-  <div id="portal-content" inert aria-hidden="true">
-  <div id="app-loader" class="app-loader" role="status" aria-live="polite" aria-busy="true">
-    <div class="app-loader-inner"><p class="app-loader-kicker">SK METHODIST PJ</p><h1>Menyediakan portal.</h1><div class="app-loader-line"><i></i></div><p id="app-loader-status">Menyelaraskan data dan akses portal…</p><small id="app-loader-detail">OPR Pusat Dokumentasi</small><button id="retry-bootstrap" type="button" hidden>Cuba semula</button></div>
-  </div>
-  <div class="app-shell">
-    <header class="topbar">
-      <a class="brand" href="./" aria-label="Kembali ke OPR Pusat Dokumentasi">
-        <img class="brand-logo" src="assets/logo-mps.png" alt="Logo SK Methodist PJ">
-        <span><strong>OPR</strong><small>PUSAT DOKUMENTASI</small></span>
-      </a>
-      <nav aria-label="Navigasi utama">
-        <button class="nav-link active" data-nav="home">Dashboard</button>
-        <button class="nav-link" data-nav="archive">Arkib</button>
-        <button class="nav-link" data-nav="new">Borang baharu</button>
-      </nav>
-      <button class="menu-button" aria-label="Buka navigasi">☰</button>
-    </header>
-
-    <main>
-      <section id="home-view" class="view active">
-        <section id="landing-section" class="home-section landing-section" data-home-section="landing">
-          <div class="hero-copy">
-            <div><p class="eyebrow">SK METHODIST PJ</p><h1>Laporan yang jelas.<br><em>Tindakan yang bermakna.</em></h1><p class="lede">Pusat pengurusan OPR yang pantas untuk semua bidang sekolah.</p><div class="hero-actions"><button class="primary" id="new-opr">+ Cipta OPR baharu</button><button class="secondary" id="view-stats">Lihat statistik ringkas ↓</button></div></div>
-          </div>
-          <button class="scroll-cue" type="button" data-scroll-section="fields" aria-label="Scroll ke pilihan bidang"><span>Terokai portal</span><i>↓</i></button>
-        </section>
-        <section id="fields-section" class="home-section fields-section" data-home-section="fields">
-          <div class="home-section-inner"><div class="home-section-heading"><p class="eyebrow">MULAKAN LAPORAN</p><h2>Pilih bidang anda</h2><p>Empat bidang, satu aliran OPR yang seragam dan pantas.</p></div><div class="field-grid" aria-label="Pilih bidang">
-            <button class="field-card pentadbiran" data-field="Pentadbiran"><span class="field-index">01</span><span class="field-name">Pentadbiran</span><span>Urus tadbir sekolah <b>→</b></span></button>
-            <button class="field-card kurikulum" data-field="Kurikulum"><span class="field-index">02</span><span class="field-name">Kurikulum</span><span>Pembelajaran berfokus <b>→</b></span></button>
-            <button class="field-card hem" data-field="Hal Ehwal Murid"><span class="field-index">03</span><span class="field-name">Hal Ehwal Murid</span><span>Insan sejahtera <b>→</b></span></button>
-            <button class="field-card koko" data-field="Kokurikulum"><span class="field-index">04</span><span class="field-name">Kokurikulum</span><span>Bakat dan kepimpinan <b>→</b></span></button>
-          </div></div>
-        </section>
-        <section id="stats-section" class="home-section stats-section" data-home-section="stats">
-          <div class="home-section-inner"><div class="home-section-heading"><p class="eyebrow">PULSE SEKOLAH</p><h2>Statistik & aktiviti terbaru</h2><p>Pandangan ringkas terhadap dokumentasi OPR sekolah.</p></div><div class="dashboard-grid">
-            <article class="recent-card"><div class="section-title"><div><p class="eyebrow">AKTIVITI TERBARU</p><h2>Rekod OPR</h2></div><button class="text-button" data-nav="archive">Lihat arkib →</button></div><div id="recent-list" class="recent-list"><p class="empty-state">Memuatkan rekod OPR…</p></div></article>
-            <aside class="insight-card"><p class="eyebrow">RINGKASAN</p><h2 id="month-label">Bulan ini</h2><div class="insight-stats"><div class="stat"><strong id="stat-month">0</strong><span>OPR bulan ini</span></div><div class="stat"><strong id="stat-total">0</strong><span>Jumlah rekod</span></div><div class="stat"><strong id="stat-officers">0</strong><span>Pegawai berdaftar</span></div></div><p class="insight-note">Pilih bidang untuk memulakan laporan baharu.</p></aside>
-          </div></div>
-        </section>
-        <nav class="section-dots" aria-label="Navigasi bahagian halaman">
-          <button class="active" type="button" data-scroll-section="landing" aria-label="Ke landing"><i></i><span>Landing</span></button>
-          <button type="button" data-scroll-section="fields" aria-label="Ke pilihan bidang"><i></i><span>Bidang</span></button>
-          <button type="button" data-scroll-section="stats" aria-label="Ke statistik"><i></i><span>Statistik</span></button>
-        </nav>
-      </section>
-
-      <section id="type-view" class="view">
-        <button class="back-button" id="type-back">← Kembali</button>
-        <p class="eyebrow" id="selected-field-label">BIDANG</p><h1 id="type-heading">Pilih jenis OPR</h1><p class="lede" id="type-lede">Pilih format laporan untuk diteruskan.</p>
-        <div id="type-grid" class="type-grid"></div>
-      </section>
-
-      <section id="form-view" class="view">
-        <div class="form-topline"><button class="back-button" id="form-back">← Tukar pilihan</button><div id="edit-banner" class="edit-banner" hidden>MODE EDIT · Rekod lama akan dikemas kini apabila disimpan.</div></div>
-        <div class="ppd-form-layout">
-          <div class="ppd-input-card"><div class="ppd-card-head"><div><p class="ppd-context" id="form-field-label">BIDANG · JENIS OPR</p><h2 id="form-title">Borang Laporan OPR</h2><p>Isi borang di bawah. Pratonton di sebelah kanan dikemas kini secara langsung.</p></div><button class="ppd-reset" type="button" id="reset-form">↻ Reset</button></div>
-          <form id="opr-form" novalidate>
-            <div class="ppd-block"><h3>Maklumat Pelapor</h3><div class="input-grid"><div class="wide officer-picker"><label for="namaPegawai">Nama Pegawai *</label><input id="namaPegawai" name="namaPegawai" autocomplete="off" required placeholder="Taip nama pegawai..."><div id="officer-options" class="picker-options" hidden></div></div><label>Jawatan *<input name="jawatanPegawai" required placeholder="Autofill atau taip jawatan"></label><label>Tarikh Laporan Disediakan *<input name="tarikhLaporan" type="date" required></label></div></div>
-            <div class="ppd-fields"><h3>Butiran Program</h3><div id="dynamic-fields" class="input-grid"></div></div>
-            <div class="ppd-images"><h3>Lampiran Gambar</h3><p>Disyorkan gambar format melintang. Selepas memilih gambar, laraskan kedudukannya sebelum digunakan.</p><div class="ppd-hero-upload photo-card" data-photo-card="1"><b>Gambar 1 (Hero Utama)</b><input type="file" accept="image/*" data-image="1"><div class="photo-actions" hidden><button class="reposition-photo" type="button" data-edit-photo="1">↔ Reposition</button><button class="remove-photo" type="button" data-remove-photo="1">Buang</button></div></div><div id="photo-status" class="photo-status" hidden></div><div class="ppd-image-grid"><div class="photo-card" data-photo-card="2"><b>Gambar 2</b><input type="file" accept="image/*" data-image="2"><div class="photo-actions" hidden><button class="reposition-photo" type="button" data-edit-photo="2">Reposition</button><button class="remove-photo" type="button" data-remove-photo="2">Buang</button></div></div><div class="photo-card" data-photo-card="3"><b>Gambar 3</b><input type="file" accept="image/*" data-image="3"><div class="photo-actions" hidden><button class="reposition-photo" type="button" data-edit-photo="3">Reposition</button><button class="remove-photo" type="button" data-remove-photo="3">Buang</button></div></div><div class="photo-card" data-photo-card="4"><b>Gambar 4</b><input type="file" accept="image/*" data-image="4"><div class="photo-actions" hidden><button class="reposition-photo" type="button" data-edit-photo="4">Reposition</button><button class="remove-photo" type="button" data-remove-photo="4">Buang</button></div></div></div></div>
-            <button type="button" class="ppd-submit" id="submit-opr">▣ <span>Simpan Laporan & Muat Turun PDF</span></button>
-          </form></div>
-          <aside class="ppd-preview-column"><div class="ppd-preview-head"><b>◉ Pratonton Laporan OPR</b><button type="button" id="download-preview">▣ Cetak PDF Sahaja</button></div><p id="report-fit-notice" hidden>Kandungan terlalu panjang untuk satu halaman A4. Sila ringkaskan isi laporan sebelum menjana PDF.</p><div id="preview-shell"><div id="opr-preview" class="a4-preview"></div></div></aside>
-        </div>
-      </section>
-
-      <section id="archive-view" class="view"><div class="archive-heading"><div><p class="eyebrow">ARKIB OPR</p><h1>Semua laporan</h1></div><button class="primary" data-nav="new">+ OPR baharu</button></div><div class="archive-toolbar"><div class="view-toggle"><button class="active" data-archive-view="pegawai">Ikut pegawai</button><button data-archive-view="bidang">Ikut bidang</button></div><div class="filters"><input id="archive-search" aria-label="Cari program atau pegawai" placeholder="Cari program atau pegawai"><select id="archive-field" aria-label="Tapis bidang"><option value="">Semua bidang</option><option>Pentadbiran</option><option>Kurikulum</option><option>Hal Ehwal Murid</option><option>Kokurikulum</option></select><select id="archive-date" aria-label="Tapis bulan"><option value="">Semua bulan</option></select></div></div><div id="archive-list" class="archive-list"></div></section>
-    </main>
-    <footer>Digital Hub SK Methodist PJ <span>•</span> OPR Dashboard</footer>
-  </div>
-  <dialog id="status-dialog"><div id="status-content"></div><button class="primary" id="close-dialog">Baik</button></dialog>
-  <div id="image-editor-modal" class="image-editor-modal" hidden><div class="image-editor-card"><div class="image-editor-head"><div><strong>Kedudukan Gambar</strong><small>Tarik gambar untuk menetapkan kedudukan dalam pratonton dan PDF.</small></div><button type="button" id="close-image-editor">×</button></div><div class="image-editor-stage"><img id="cropper-image" alt="Editor gambar"></div><div class="image-editor-actions"><button type="button" id="crop-reset" class="secondary">Kembali asal</button><span></span><button type="button" id="crop-cancel" class="secondary">Batal</button><button type="button" id="crop-apply" class="primary">Gunakan gambar</button></div></div></div>
-  <div id="save-progress-modal" class="save-progress-modal" hidden><div class="save-progress-card"><h2>Menyediakan Laporan OPR</h2><p>Jangan tutup halaman. Proses gambar, PDF dan Drive boleh mengambil masa sehingga 1–2 minit.</p><div class="save-steps"><div data-step="images"><i>1</i><span>Memproses gambar</span></div><div data-step="pdf"><i>2</i><span>Menjana PDF satu halaman</span></div><div data-step="drive"><i>3</i><span>Menyimpan ke Drive</span></div><div data-step="done"><i>4</i><span>Selesai</span></div></div><p id="save-progress-message" hidden></p><button id="close-save-progress" type="button" class="primary" hidden>Tutup</button></div></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-  </div>
-  <script>
-    // Do not start the app or its data requests while maintenance is active.
-    if (document.documentElement.dataset.maintenance !== 'true') {
-      const portal = document.getElementById('portal-content');
-      portal.inert = false;
-      portal.removeAttribute('aria-hidden');
-      const app = document.createElement('script');
-      app.src = 'app.js?v=20260918a';
-      document.body.appendChild(app);
-    }
-  </script>
 </body>
 </html>
