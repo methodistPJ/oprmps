@@ -782,8 +782,8 @@ function paragraphLines(pdf, value, width) {
     if (!line) return [{ text: "", bullet: false }];
     const bullet = /^[\u2022\u25cf]\s*/.test(line);
     const text = bullet ? line.replace(/^[\u2022\u25cf]\s*/, "") : line;
-    const lines = pdf.splitTextToSize(text, Math.max(8, width - (bullet ? 4 : 0)));
-    return lines.map((part, index) => ({ text: part, bullet: bullet && index === 0, indent: bullet }));
+    const lines = pdf.splitTextToSize(text, Math.max(8, width - (bullet ? 3 : 0)));
+    return lines.map((part, index) => ({ text: part, bullet: bullet && index === 0, indent: bullet, lastInParagraph: index === lines.length - 1 }));
   });
 }
 
@@ -841,7 +841,13 @@ function drawPdfParagraph(pdf, value, x, y, width, fontSize, lineHeight) {
       pdf.setFillColor(51, 65, 85);
       pdf.circle(x + 0.8, lineY - 0.75, 0.48, "F");
     }
-    pdf.text(line.text, x + (line.indent ? 3 : 0), lineY);
+    const indent = line.indent ? 3 : 0;
+    // Fill the text box on wrapped lines; keep each paragraph's final line natural.
+    const justify = !line.lastInParagraph && /\S\s+\S/.test(line.text);
+    pdf.text(line.text, x + indent, lineY, {
+      align: justify ? "justify" : "left",
+      maxWidth: Math.max(8, width - indent)
+    });
   });
 }
 
